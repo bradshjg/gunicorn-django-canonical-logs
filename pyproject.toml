@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gunicorn-django-wide-events"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "James Bradshaw", email = "james.g.bradshaw@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/James Bradshaw/gunicorn-django-wide-events#readme"
+Issues = "https://github.com/James Bradshaw/gunicorn-django-wide-events/issues"
+Source = "https://github.com/James Bradshaw/gunicorn-django-wide-events"
+
+[tool.hatch.version]
+path = "src/gunicorn_django_wide_events/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/gunicorn_django_wide_events tests}"
+
+[tool.coverage.run]
+source_pkgs = ["gunicorn_django_wide_events", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/gunicorn_django_wide_events/__about__.py",
+]
+
+[tool.coverage.paths]
+gunicorn_django_wide_events = ["src/gunicorn_django_wide_events", "*/gunicorn-django-wide-events/src/gunicorn_django_wide_events"]
+tests = ["tests", "*/gunicorn-django-wide-events/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
