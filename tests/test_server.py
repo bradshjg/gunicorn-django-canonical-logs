@@ -26,15 +26,18 @@ def server() -> Generator[IO[str], None, None]:
         s_proc.wait()
 
 
-def test_hello(server: tuple[IO[str], IO[str]]) -> None:
+def test_hello(server) -> None:
     stdout, _ = server
     requests.get("http://localhost:8080/hello/")
     log = stdout.readline()
     assert "GET /hello/" in log
 
 
-def test_howdy(server: tuple[IO[str], IO[str]]) -> None:
+def test_howdy(server) -> None:
     stdout, _ = server
     requests.get("http://localhost:8080/howdy/")
     log = stdout.readline()
     assert "GET /howdy/" in log
+
+def test_malformed_request(server):
+    pass
