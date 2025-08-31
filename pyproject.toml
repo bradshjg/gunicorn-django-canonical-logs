@@ -57,6 +57,7 @@ check = "mypy --install-types --non-interactive {args:src/gunicorn_django_wide_e
 features = [
   "test",
 ]
+extra-args = ["-vv"]
 
 [tool.hatch.envs.dev]
 path = ".venv/dev"
