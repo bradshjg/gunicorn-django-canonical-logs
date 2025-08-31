@@ -10,7 +10,7 @@ class InvalidHookError(Exception):
 
 
 class Hook(StrEnum):
-    ON_STARTING = "on_staring"
+    ON_STARTING = "on_starting"
     ON_RELOAD = "on_reload"
     WHEN_READY = "when_ready"
     PRE_FORK = "pre_fork"
@@ -23,7 +23,7 @@ class Hook(StrEnum):
     POST_REQUEST = "post_request"
     CHILD_EXIT = "child_exit"
     WORKER_EXIT = "worker_exit"
-    NWORKERS_CHANGED = "workers_changed"
+    NWORKERS_CHANGED = "nworkers_changed"
     ON_EXIT = "on_exit"
     SSL_CONTEXT = "ssl_context"
 
