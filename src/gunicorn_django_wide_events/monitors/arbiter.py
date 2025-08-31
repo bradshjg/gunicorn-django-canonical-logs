@@ -39,8 +39,9 @@ class SaturationMonitor(threading.Thread):
 
             tcp_info_fmt = "B" * 8 + "I" * 5  # tcp_info struct from /usr/include/linux/tcp.h
             tcp_info_size = 28
+            tcpi_unacked_index = 12
             tcp_info_struct = listener.sock.getsockopt(socket.IPPROTO_TCP, socket.TCP_INFO, tcp_info_size)
-            total += struct.unpack(tcp_info_fmt, tcp_info_struct)[12]  # 12 is tcpi_unacked
+            total += struct.unpack(tcp_info_fmt, tcp_info_struct)[tcpi_unacked_index]
 
         return total
 
