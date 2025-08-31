@@ -38,7 +38,9 @@ class HookRegistry:
     def register(self, *, hook: Hook, callback: Callable) -> None:
         self._registered_hooks[hook].add(callback)
 
+
 hook_registry = HookRegistry()
+
 
 def register_hook(*, registry=hook_registry):
     def decorator(f):
@@ -46,8 +48,11 @@ def register_hook(*, registry=hook_registry):
         if hook_name not in Hook:
             raise InvalidHookError(hook_name)
         registry.register(hook=hook_name, callback=f)
+
         @wraps(f)
         def wrapper(*args, **kwargs):
             return f(*args, **kwargs)
+
         return wrapper
+
     return decorator

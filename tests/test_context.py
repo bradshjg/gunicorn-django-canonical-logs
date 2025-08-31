@@ -5,6 +5,7 @@ def test_context_str():
     context = Context({"foo": "bar", "baz": "qux"})
     assert str(context) == "foo=bar baz=qux"
 
+
 def test_context_reset():
     context = Context({"foo": "bar", "baz": "qux"})
     assert str(context) == "foo=bar baz=qux"

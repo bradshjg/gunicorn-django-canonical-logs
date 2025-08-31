@@ -20,6 +20,7 @@ class STATS(ctypes.Structure):
         ("backlog", ctypes.c_uint16),
     ]
 
+
 class SaturationMonitor(threading.Thread):
     def __init__(self, arbiter):
         super().__init__()
@@ -54,6 +55,7 @@ class SaturationMonitor(threading.Thread):
 
         return total
 
+
 def when_ready(arbiter: Arbiter):
     arbiter.log.info("Starting SaturationMonitor")
     sm = SaturationMonitor(arbiter)
@@ -64,13 +66,16 @@ def when_ready(arbiter: Arbiter):
         extra={"metric": "gunicorn.total_workers", "value": str(arbiter.num_workers), "mtype": "gauge"},
     )
 
+
 @register_hook
 def pre_fork(_, worker: Worker):
     worker._active = Value(ctypes.c_bool, False)  # noqa: SLF001
 
+
 @register_hook
 def pre_request(worker: Worker, _):
     worker._active.value = True  # noqa: SLF001
+
 
 @register_hook
 def post_request(worker: Worker, *_):

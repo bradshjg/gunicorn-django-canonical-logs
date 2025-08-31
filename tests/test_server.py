@@ -38,6 +38,3 @@ def test_howdy(server) -> None:
     requests.get("http://localhost:8080/howdy/")
     log = stdout.readline()
     assert "GET /howdy/" in log
-
-def test_malformed_request(server):
-    pass
