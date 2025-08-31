@@ -1,10 +1,12 @@
 import logging
+import sys
 
 from gunicorn import glogging
 from gunicorn.http.message import Request
 from gunicorn.http.wsgi import Response
 
 logger = logging.getLogger("request")
+logger.addHandler(logging.StreamHandler(sys.stdout()))
 logger.propagate = False
 
 

@@ -38,11 +38,14 @@ class HookRegistry:
     def register(self, *, hook: Hook, callback: Callable) -> None:
         self._registered_hooks[hook].add(callback)
 
+    def reset(self):
+        self._registered_hooks = defaultdict(set)
+
 
 hook_registry = HookRegistry()
 
 
-def register_hook(*, registry=hook_registry):
+def register_hook(func=None, *, registry=hook_registry):
     def decorator(f):
         hook_name = f.__name__
         if hook_name not in Hook:
@@ -55,4 +58,6 @@ def register_hook(*, registry=hook_registry):
 
         return wrapper
 
+    if func:
+        return decorator(func)
     return decorator
