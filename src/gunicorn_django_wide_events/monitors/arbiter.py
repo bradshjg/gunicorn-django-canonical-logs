@@ -37,12 +37,10 @@ class SaturationMonitor(threading.Thread):
             if not listener.sock:
                 continue
 
-            # tcp_info struct from include/uapi/linux/tcp.h
-            tcp_info_fmt = "B" * 8 + "I" * 24
-            tcp_info_bytes = 104
-            tcp_info_struct = listener.sock.getsockopt(socket.IPPROTO_TCP, socket.TCP_INFO, tcp_info_bytes)
-            # 12 is tcpi_unacked
-            total += struct.unpack(tcp_info_fmt, tcp_info_struct)[12]
+            tcp_info_fmt = "B" * 8 + "I" * 5  # tcp_info struct from /usr/include/linux/tcp.h
+            tcp_info_size = 28
+            tcp_info_struct = listener.sock.getsockopt(socket.IPPROTO_TCP, socket.TCP_INFO, tcp_info_size)
+            total += struct.unpack(tcp_info_fmt, tcp_info_struct)[12]  # 12 is tcpi_unacked
 
         return total
 
