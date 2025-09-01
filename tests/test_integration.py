@@ -29,7 +29,7 @@ def server() -> Generator[tuple[IO[str], IO[str]], None, None]:
         s_proc.wait()
 
 
-def test_access_events(server) -> None:
+def test_access_event(server) -> None:
     stdout, _ = server
     requests.get("http://localhost:8080/ok/")
     log = stdout.readline()
@@ -37,7 +37,7 @@ def test_access_events(server) -> None:
     assert "resp_status=200" in log
 
 
-def test_saturation_events(server) -> None:
+def test_saturation_event(server) -> None:
     stdout, _ = server
 
     requests.get("http://localhost:8080/ok/")
@@ -45,7 +45,7 @@ def test_saturation_events(server) -> None:
     assert f"w_num={workers}" in log
 
 
-def test_exception_events(server) -> None:
+def test_exception_event(server) -> None:
     stdout, _ = server
 
     requests.get("http://localhost:8080/view_exception/")
@@ -54,7 +54,15 @@ def test_exception_events(server) -> None:
     assert 'exc_type=MyError exc_msg="Oh noes!"' in log
 
 
-def test_custom_events(server) -> None:
+def test_custom_event(server) -> None:
+    stdout, _ = server
+
+    requests.get("http://localhost:8080/custom_event/")
+    log = stdout.readline()
+    assert "custom_event=1" in log
+
+
+def test_context_reset_between_requests(server) -> None:
     stdout, _ = server
 
     requests.get("http://localhost:8080/custom_event/")

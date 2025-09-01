@@ -17,7 +17,6 @@ def instrumenter() -> Generator[SaturationInstrumenter, None, None]:
 
 def test_adds_context_on_call(instrumenter):
     instrumenter.call()
-    log_str = str(context)
-    assert "w_num=0" in log_str
-    assert "w_active=0" in log_str
-    assert "backlog=0" in log_str
+    assert context["w_num"] == 0
+    assert context["w_active"] == 0
+    assert context["backlog"] == 0
