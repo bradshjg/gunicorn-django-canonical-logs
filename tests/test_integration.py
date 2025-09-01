@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import time
 from typing import IO, Generator
@@ -11,7 +12,7 @@ from tests.server.gunicorn_config import workers
 
 
 @pytest.fixture(scope="session")
-def server() -> Generator[IO[str], None, None]:
+def server() -> Generator[tuple[IO[str], IO[str]], None, None]:
     s_proc = subprocess.Popen(
         ["gunicorn", "-c", "./tests/server/gunicorn_config.py", "tests.server.app"],
         stdout=subprocess.PIPE,

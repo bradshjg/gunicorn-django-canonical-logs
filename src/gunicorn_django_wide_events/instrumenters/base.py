@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 
+class BaseInstrumenter:
+    def setup(self) -> None:
+        """Override to do any patching/configuration as necessary"""
+        pass
 
-class BaseInstrumenter(ABC):
-    @abstractmethod
-    def setup(self):
-        """Override to do any patching/configuration necessary"""
-        raise NotImplementedError
+    def teardown(self) -> None:
+        """Override to revert any patching/configuration as necessary"""
+        pass
 
-    @abstractmethod
-    def call(self) -> dict[str, str]:
-        """Override to add events to the context"""
-        raise NotImplementedError
+    def call(self) -> None:
+        """Override to add events to the context as necessary"""
+        pass

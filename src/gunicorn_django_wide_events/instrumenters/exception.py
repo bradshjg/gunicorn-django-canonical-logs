@@ -14,9 +14,10 @@ if TYPE_CHECKING:
 
 @register_instrumenter
 class ExceptionInstrumenter(BaseInstrumenter):
-    def setup(self):
-        _orig_handle_uncaught_exception = exception.handle_uncaught_exception
+    def __init__(self):
+        self._orig_handle_uncaught_exception = exception.handle_uncaught_exception
 
+    def setup(self):
         def patched_handle_uncaught_exception(
             request, resolver, exc_info: tuple[type[Exception], Exception, TracebackType]
         ):
@@ -24,9 +25,12 @@ class ExceptionInstrumenter(BaseInstrumenter):
                 "type": exc_info[0].__name__,
                 "msg": exc_info[1].args[0],
             }
-            return _orig_handle_uncaught_exception(request, resolver, exc_info)
+            return self._orig_handle_uncaught_exception(request, resolver, exc_info)
 
         exception.handle_uncaught_exception = patched_handle_uncaught_exception
+
+    def teardown(self):
+        exception.handle_uncaught_exception = self._orig_handle_uncaught_exception
 
     def call(self):
         pass

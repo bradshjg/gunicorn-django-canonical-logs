@@ -9,18 +9,6 @@ from django.urls import path
 
 from gunicorn_django_wide_events.event_context import context
 
-settings.configure(
-    ROOT_URLCONF=__name__,
-    DEBUG=False,
-    SECRET_KEY="not-so-secret",
-    TEMPLATES=[
-        {
-            "BACKEND": "django.template.backends.django.DjangoTemplates",
-            "DIRS": [Path(__file__).parent / "templates"],
-        }
-    ],
-)
-
 
 class MyError(Exception):
     def __init__(self):
