@@ -7,6 +7,8 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import path
 
+from gunicorn_django_wide_events.event_context import context
+
 settings.configure(
     ROOT_URLCONF=__name__,
     DEBUG=False,
@@ -46,12 +48,18 @@ def template_callable_exception(request):
     return render(request, "callable_exception.html", {"callable": func_that_throws})
 
 
+def custom_event(request):
+    context["custom_event"] = 1
+    return HttpResponse("Added custom event!")
+
+
 urlpatterns = [
     path("ok/", ok),
     path("view_exception/", view_exception),
     path("template_syntax_exception/", template_syntax_exception),
     path("template_callable_exception/", template_callable_exception),
     path("named_ok/", ok, name="named_ok_view"),
+    path("custom_event/", custom_event),
 ]
 
 application = get_wsgi_application()

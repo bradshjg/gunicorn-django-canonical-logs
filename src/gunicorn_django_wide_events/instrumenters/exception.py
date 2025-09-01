@@ -9,7 +9,7 @@ from gunicorn_django_wide_events.event_context import context
 
 
 @register_instrumenter
-class ExceptionIntrumenter(BaseInstrumenter):
+class ExceptionInstrumenter(BaseInstrumenter):
     def setup(self):
         _orig_handle_uncaught_exception = exception.handle_uncaught_exception
         def patched_handle_uncaught_exception(request, resolver, exc_info: tuple[Type[Exception], Exception, TracebackType]):

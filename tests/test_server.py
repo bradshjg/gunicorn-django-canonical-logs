@@ -52,3 +52,16 @@ def test_uncaught_exception(server) -> None:
     log = stdout.readline()
     assert "resp_status=500" in log
     assert 'exc_type=MyError exc_msg="Oh noes!"' in log
+
+
+def test_custom_event(server) -> None:
+    stdout, _ = server
+
+    requests.get("http://localhost:8080/custom_event/")
+    log = stdout.readline()
+    assert "custom_event=1" in log
+
+    # context reset between requests
+    requests.get("http://localhost:8080/ok/")
+    log = stdout.readline()
+    assert "custom_event=1" not in log

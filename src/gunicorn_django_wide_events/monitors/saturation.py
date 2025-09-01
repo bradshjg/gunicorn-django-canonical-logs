@@ -170,6 +170,18 @@ def monitor_saturation(arbiter: Arbiter):
         time.sleep(update_interval_seconds)
 
 
+class CurrentSaturationStats():
+    stats = {}
+
+    @classmethod
+    def get(cls) -> dict[str, str]:
+        return cls.stats
+
+    @classmethod
+    def set(cls, stats: SaturationStats) -> None:
+        cls.stats = dataclasses.asdict(stats)
+
+
 @register_hook
 def when_ready(arbiter: Arbiter):
     arbiter.log.info("Starting saturation monitor")
@@ -190,7 +202,7 @@ def pre_fork(arbiter: Arbiter, worker: Worker):
 def pre_request(worker: Worker, _):
     worker.saturation_stats_active.set(active=True)
     saturation_stats = SaturationStatsShared.from_name(worker.saturation_stats_shm_name).value
-    context.update(dataclasses.asdict(saturation_stats))
+    CurrentSaturationStats.set(saturation_stats)
 
 
 @register_hook

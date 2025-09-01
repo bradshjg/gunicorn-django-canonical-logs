@@ -4,6 +4,7 @@ from gunicorn import glogging
 from gunicorn.http.wsgi import Response
 
 from gunicorn_django_wide_events.event_context import context
+from gunicorn_django_wide_events.instrumenters.instrumenters import instrumenter_registry
 
 
 class Logger(glogging.Logger):
@@ -17,6 +18,9 @@ class Logger(glogging.Logger):
             },
             "resp": {"status": resp.status_code, "time": f"{request_time.total_seconds():.3f}"},
         }
-
         context.update(access_context)
+
+        for instrumenter in instrumenter_registry.values():
+            instrumenter.call()
+
         self.access_log.info(str(context))
