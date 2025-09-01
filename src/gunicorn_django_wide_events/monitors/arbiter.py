@@ -1,30 +1,36 @@
 from __future__ import annotations
 
+import dataclasses
 import socket
 import struct
 import sys
 import threading
 import time
-from dataclasses import dataclass, fields
 from multiprocessing.shared_memory import SharedMemory
 from typing import TYPE_CHECKING
 
+from gunicorn_django_wide_events.event_context import context
 from gunicorn_django_wide_events.hooks import register_hook
 
 if TYPE_CHECKING:
     from gunicorn.arbiter import Arbiter
-    from gunicorn.http.message import Request
     from gunicorn.workers.base import Worker
 
 
-@dataclass
+@dataclasses.dataclass
 class SaturationStats:
-    workers_total: int = 0
-    workers_active: int = 0
+    w_num: int = 0
+    w_active: int = 0
     backlog: int = 0
 
+
 class SaturationStatsShared:
-    STRUCT_FMT = 3*"H"  # 3*uint16 (workers_total, workers_active, backlog)
+    """Allow managing saturation stats across processes using shared memory.
+
+    No synchronization is done. The assumption is that this will be atomic, or close enough to it.
+    """
+
+    STRUCT_FMT = 3 * "H"  # 3*uint16 (w_num, w_active, backlog)
     STRUCT_SIZE = struct.calcsize(STRUCT_FMT)
 
     def __init__(self, shm):
@@ -47,7 +53,7 @@ class SaturationStatsShared:
         return self.shm.name
 
     def set(self, *, stats: SaturationStats) -> None:
-        values = [getattr(stats, field.name) for field in fields(stats)]
+        values = [getattr(stats, field.name) for field in dataclasses.fields(stats)]
         struct.pack_into(self.STRUCT_FMT, self.shm.buf, 0, *values)
 
     @property
@@ -61,7 +67,13 @@ class SaturationStatsShared:
     def unlink(self) -> None:
         self.shm.unlink()
 
+
 class WorkerActiveShared:
+    """Allow managing worker activness stats across processes using shared memory.
+
+    No synchronization is done. The assumption is that this will be atomic, or close enough to it.
+    """
+
     STRUCT_FMT = "?"  # boolean
     STRUCT_SIZE = struct.calcsize(STRUCT_FMT)
 
@@ -98,6 +110,7 @@ class WorkerActiveShared:
     def unlink(self) -> None:
         self.shm.unlink()
 
+
 def get_backlog(arbiter) -> int:
     """Get the number of connections waiting to be accepted by a server"""
     if sys.platform != "linux":
@@ -115,8 +128,10 @@ def get_backlog(arbiter) -> int:
 
     return total
 
-def get_workers_active(arbiter: Arbiter, workers: list[Worker]) -> int:
-    workers_active = 0
+
+def get_w_active(arbiter: Arbiter, workers: list[Worker]) -> int:
+    """Get the number of currently active workers"""
+    w_active = 0
     for worker in workers:
         if not hasattr(worker, "saturation_stats_active_shm_name"):
             arbiter.log.debug("no activeness shm path available for worker with pid %s", worker.pid)
@@ -128,17 +143,14 @@ def get_workers_active(arbiter: Arbiter, workers: list[Worker]) -> int:
             arbiter.log.debug("no activeness shm file found for worker with pid %s", worker.pid)
             continue
         else:
-            workers_active += int(active)
-    return workers_active
+            w_active += int(active)
+    return w_active
 
 
 def monitor_saturation(arbiter: Arbiter):
-    """Monitor thread target to share stats with requests
+    """Monitor thread used to share stats with requests
 
-    This thread updates saturation stats combining data from the arbiter and workers.
-
-    * Saturation stats are made available on `requests` via pre-request hooks.
-    * Workers activeness is maintained via pre/post-request hooks.
+    Saturation stats are updated with an interval combining data from the arbiter and workers.
     """
     update_interval_seconds = 1
 
@@ -148,12 +160,12 @@ def monitor_saturation(arbiter: Arbiter):
             break
 
         workers: list[Worker] = arbiter.WORKERS.values()
-        workers_total = len(workers)
-        workers_active = get_workers_active(arbiter, workers)
+        w_num = len(workers)
+        w_active = get_w_active(arbiter, workers)
 
         backlog = get_backlog(arbiter)
 
-        arbiter.saturation_stats.set(stats=SaturationStats(workers_total, workers_active, backlog))
+        arbiter.saturation_stats.set(stats=SaturationStats(w_num, w_active, backlog))
 
         time.sleep(update_interval_seconds)
 
@@ -175,9 +187,10 @@ def pre_fork(arbiter: Arbiter, worker: Worker):
 
 
 @register_hook
-def pre_request(worker: Worker, request: Request):
+def pre_request(worker: Worker, _):
     worker.saturation_stats_active.set(active=True)
-    request.saturation_stats = SaturationStatsShared.from_name(worker.saturation_stats_shm_name).value
+    saturation_stats = SaturationStatsShared.from_name(worker.saturation_stats_shm_name).value
+    context.update(dataclasses.asdict(saturation_stats))
 
 
 @register_hook
@@ -189,6 +202,7 @@ def post_request(worker: Worker, *_):
 def worker_exit(_, worker: Worker):
     worker.saturation_stats_active.close()
     worker.saturation_stats_active.unlink()
+
 
 @register_hook
 def on_exit(arbiter: Arbiter):

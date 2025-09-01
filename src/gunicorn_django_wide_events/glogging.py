@@ -1,17 +1,22 @@
-from typing import TYPE_CHECKING
+import datetime
 
 from gunicorn import glogging
-from gunicorn.http.message import Request
 from gunicorn.http.wsgi import Response
 
-if TYPE_CHECKING:
-    from gunicorn_django_wide_events.monitors.arbiter import SaturationStats
+from gunicorn_django_wide_events.event_context import context
 
 
 class Logger(glogging.Logger):
-    def access(self, resp: Response, req: Request, environ: dict, request_time: float):
-        super().access(resp, req, environ, request_time)
-        stats: SaturationStats = req.saturation_stats
-        print(f"{stats.workers_total=}")
-        print(f"{stats.workers_active=}")
-        print(f"{stats.backlog=}")
+    def access(self, resp: Response, _, environ: dict, request_time: datetime.timedelta):
+        access_context = {
+            "req": {
+                "method": environ.get("REQUEST_METHOD"),
+                "path": environ.get("PATH_INFO"),
+                "referrer": environ.get("HTTP_REFERER"),
+                "user_agent": environ.get("HTTP_USER_AGENT"),
+            },
+            "resp": {"status": resp.status, "time": f"{request_time.total_seconds():.3f}"},
+        }
+
+        context.update(access_context)
+        self.access_log.info(str(context))
