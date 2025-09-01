@@ -19,3 +19,5 @@ TEMPLATES=[
         "DIRS": [Path(__file__).parent / "templates"],
     }
 ]
+
+STATIC_URL = "static/"  # HACK otherwise Django liveserver test cases parse the base url as bytes

@@ -14,6 +14,10 @@ def instrumenter() -> Generator[None, None, None]:
     instrumenter.teardown()
 
 
-def test_sanity(instrumenter, live_server):
-    resp = requests.get(live_server + "/view_exception/")
+def test_view_exception(instrumenter, live_server):
+    url = live_server + "/view_exception/"
+    resp = requests.get(url)
     assert resp.status_code == 500
+    log_str = str(context)
+    assert "exc_type=MyError" in log_str
+    assert 'exc_msg="Oh noes!"' in log_str
