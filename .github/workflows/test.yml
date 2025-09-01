@@ -12,19 +12,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.12"]
-
+    container:
+      image: mcr.microsoft.com/devcontainers/python
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Install hatch
+        run: pipx install hatch
 
-    - name: Install Hatch
-      run: pipx install hatch
-
-    - name: Run Tests
-      run: hatch test
+      - name: Run tests
+        run: hatch test
