@@ -17,5 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install hatch
+        run: pipx install hatch
+
       - name: Run tests
         run: hatch test
