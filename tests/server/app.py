@@ -1,6 +1,3 @@
-from pathlib import Path
-
-from django.conf import settings
 from django.core.management import execute_from_command_line
 from django.core.wsgi import get_wsgi_application
 from django.http import HttpResponse

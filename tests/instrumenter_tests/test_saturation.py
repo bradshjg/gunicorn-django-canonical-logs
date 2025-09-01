@@ -1,9 +1,10 @@
 from typing import Generator
+
 import pytest
-import requests
 
 from gunicorn_django_wide_events.event_context import context
 from gunicorn_django_wide_events.instrumenters.saturation import SaturationInstrumenter
+
 
 @pytest.fixture
 def instrumenter() -> Generator[SaturationInstrumenter, None, None]:
