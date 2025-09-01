@@ -9,7 +9,6 @@ import time
 from multiprocessing.shared_memory import SharedMemory
 from typing import TYPE_CHECKING
 
-from gunicorn_django_wide_events.event_context import context
 from gunicorn_django_wide_events.gunicorn_hooks.hooks import register_hook
 
 if TYPE_CHECKING:
@@ -170,11 +169,13 @@ def monitor_saturation(arbiter: Arbiter):
         time.sleep(update_interval_seconds)
 
 
-class CurrentSaturationStats():
-    stats = {}
+class CurrentSaturationStats:
+    stats: SaturationStats | None = None
 
     @classmethod
     def get(cls) -> dict[str, str]:
+        if cls.stats is None:
+            return dataclasses.asdict(SaturationStats())
         return cls.stats
 
     @classmethod

@@ -48,7 +48,7 @@ def template_callable_exception(request):
     return render(request, "callable_exception.html", {"callable": func_that_throws})
 
 
-def custom_event(request):
+def custom_event(_):
     context["custom_event"] = 1
     return HttpResponse("Added custom event!")
 

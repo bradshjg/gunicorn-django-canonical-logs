@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 from collections import UserDict
 from functools import wraps
-from typing import Type
+from typing import TYPE_CHECKING
 
-from gunicorn_django_wide_events.instrumenters.base import BaseInstrumenter
+if TYPE_CHECKING:
+    from gunicorn_django_wide_events.instrumenters.base import BaseInstrumenter
 
 
 class InstrumenterRegistry(UserDict):
-    def register(self, *, instrumenter: Type[BaseInstrumenter]) -> None:
+    def register(self, *, instrumenter: type[BaseInstrumenter]) -> None:
         self.data[instrumenter.__name__] = instrumenter()
 
 
