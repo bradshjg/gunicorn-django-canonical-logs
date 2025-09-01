@@ -44,7 +44,7 @@ To provide insight into server state, process manager runs a monitoring thread t
 
 ## Timeouts
 
-To support timeout events with application-level data, each request spawns a timeout thread with a shorter timeout than the master process'. When that timeout is reached, the worker will emit a timeout event before aborting itself. The worker-internal timeout thread provides the ability to log application-level data that might escape the view of the `worker_abort` hook, since it relies on Python context switching instead of OS context switching. A C extension that doesn't checkpoint often enough could otherwise result in the master gunicorn process ungracefully killing the worker without `worker_abort` ever firing.
+To support timeout events with application-level data, each request spawns a timeout thread with a shorter timeout than the arbiter process'. When that timeout is reached, the worker will emit a timeout event before aborting itself. The worker-internal timeout thread provides the ability to log application-level data that might escape the view of the `worker_abort` hook, since it relies on Python context switching instead of OS context switching. A C extension that doesn't checkpoint often enough could otherwise result in the arbiter gunicorn process ungracefully killing the worker without `worker_abort` ever firing.
 
 ## License
 
