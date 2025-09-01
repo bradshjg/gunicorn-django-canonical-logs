@@ -6,11 +6,11 @@ from gunicorn_django_wide_events.event_context import context
 from gunicorn_django_wide_events.instrumenters.exception import ExceptionInstrumenter
 
 @pytest.fixture
-def instrumenter() -> Generator[None, None, None]:
+def instrumenter() -> Generator[ExceptionInstrumenter, None, None]:
     context.reset()
     instrumenter = ExceptionInstrumenter()
     instrumenter.setup()
-    yield
+    yield instrumenter
     instrumenter.teardown()
 
 

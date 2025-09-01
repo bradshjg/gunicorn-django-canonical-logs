@@ -6,8 +6,5 @@ from gunicorn_django_wide_events.monitors.saturation import CurrentSaturationSta
 
 @register_instrumenter
 class SaturationInstrumenter(BaseInstrumenter):
-    def setup(self):
-        pass
-
     def call(self):
         context.update(CurrentSaturationStats.get())
