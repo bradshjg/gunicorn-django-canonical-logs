@@ -15,7 +15,7 @@ class Logger(glogging.Logger):
                 "referrer": environ.get("HTTP_REFERER"),
                 "user_agent": environ.get("HTTP_USER_AGENT"),
             },
-            "resp": {"status": resp.status, "time": f"{request_time.total_seconds():.3f}"},
+            "resp": {"status": resp.status_code, "time": f"{request_time.total_seconds():.3f}"},
         }
 
         context.update(access_context)

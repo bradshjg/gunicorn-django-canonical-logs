@@ -6,6 +6,8 @@ from typing import IO, Generator
 import pytest
 import requests
 
+from tests.server.gunicorn_config import workers
+
 
 @pytest.fixture(scope="session")
 def server() -> Generator[IO[str], None, None]:
@@ -26,18 +28,12 @@ def server() -> Generator[IO[str], None, None]:
         s_proc.wait()
 
 
-def test_hello(server) -> None:
+def test_ok(server) -> None:
     stdout, _ = server
-    requests.get("http://localhost:8080/hello/")
+    requests.get("http://localhost:8080/ok/")
     log = stdout.readline()
-    assert 'req_path="/hello/"' in log
-
-
-def test_howdy(server) -> None:
-    stdout, _ = server
-    requests.get("http://localhost:8080/howdy/")
-    log = stdout.readline()
-    assert 'req_path="/howdy/"' in log
+    assert 'req_path="/ok/"' in log
+    assert "resp_status=200" in log
 
 
 def test_worker_count(server) -> None:
@@ -45,6 +41,6 @@ def test_worker_count(server) -> None:
     import time
 
     time.sleep(2)  # HACK: find a way to ensure the saturation monitor is emitting data
-    requests.get("http://localhost:8080/howdy/")
+    requests.get("http://localhost:8080/ok/")
     log = stdout.readline()
-    assert "w_num=5" in log
+    assert f"w_num={workers}" in log
