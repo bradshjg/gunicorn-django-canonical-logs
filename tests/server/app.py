@@ -9,7 +9,7 @@ from django.urls import path
 
 settings.configure(
     ROOT_URLCONF=__name__,
-    DEBUG=True,
+    DEBUG=False,
     SECRET_KEY="not-so-secret",
     TEMPLATES=[
         {

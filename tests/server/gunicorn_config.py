@@ -1,5 +1,5 @@
 from gunicorn_django_wide_events.glogging import Logger
-from gunicorn_django_wide_events.registered_hooks import *  # noqa: F403 registers hooks
+from gunicorn_django_wide_events.gunicorn_hooks.registered_hooks import *  # noqa: F403 registers hooks
 
 accesslog = "-"
 logger_class = Logger

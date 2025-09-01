@@ -1,4 +1,4 @@
-from gunicorn_django_wide_events.hooks import Hook, hook_registry
+from gunicorn_django_wide_events.gunicorn_hooks.hooks import Hook, hook_registry
 
 
 def on_starting(server):
