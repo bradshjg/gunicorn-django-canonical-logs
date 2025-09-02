@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import subprocess
 import time
 from typing import IO, Generator
@@ -27,6 +28,19 @@ def server() -> Generator[tuple[IO[str], IO[str]], None, None]:
     finally:
         s_proc.terminate()
         s_proc.wait()
+
+
+def test_context_reset_between_requests(server) -> None:
+    stdout, _ = server
+
+    requests.get("http://localhost:8080/custom_event/")
+    log = stdout.readline()
+    assert "custom_event=1" in log
+
+    # context reset between requests
+    requests.get("http://localhost:8080/ok/")
+    log = stdout.readline()
+    assert "custom_event=1" not in log
 
 
 def test_access_event(server) -> None:
@@ -62,14 +76,10 @@ def test_custom_event(server) -> None:
     assert "custom_event=1" in log
 
 
-def test_context_reset_between_requests(server) -> None:
+def test_timeout_event(server) -> None:
     stdout, _ = server
 
-    requests.get("http://localhost:8080/custom_event/")
+    requests.get("http://localhost:8080/sleep/?duration=10")
     log = stdout.readline()
-    assert "custom_event=1" in log
-
-    # context reset between requests
-    requests.get("http://localhost:8080/ok/")
-    log = stdout.readline()
-    assert "custom_event=1" not in log
+    assert re.search(r'timeout_loc="app\.py:\d+:sleep"', log)
+    assert re.search(r'timeout_cause_loc="app\.py:\d+:simulate_blocking"', log)

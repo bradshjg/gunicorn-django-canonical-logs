@@ -13,6 +13,9 @@ def quote(token):
 class EventContext(UserDict):
     """Context available to loggers or"""
 
+    # FIXME: let's format the context in the logger instead of the context knowing how to format itself.
+    # I think the original idea is that we could share formatting across gunicorn and Django, but I don't
+    # think we need to log both places!
     def __str__(self):
         """String representation for logging
 

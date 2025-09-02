@@ -6,5 +6,5 @@ raw_env = ["DJANGO_SETTINGS_MODULE=settings"]
 accesslog = "-"
 logger_class = Logger
 bind = ["127.0.0.1:8080"]
-timeout = 30
+timeout = 2
 workers = 1

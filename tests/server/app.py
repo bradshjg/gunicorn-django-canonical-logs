@@ -1,3 +1,5 @@
+import time
+
 from django.core.management import execute_from_command_line
 from django.core.wsgi import get_wsgi_application
 from django.http import HttpResponse
@@ -38,6 +40,16 @@ def custom_event(_):
     return HttpResponse("Added custom event!")
 
 
+def sleep(request):
+    duration = float(request.GET["duration"])
+    simulate_blocking(duration)
+    return HttpResponse(f"Slept {duration} seconds!")
+
+
+def simulate_blocking(duration):
+    time.sleep(duration)
+
+
 urlpatterns = [
     path("ok/", ok),
     path("view_exception/", view_exception),
@@ -45,6 +57,7 @@ urlpatterns = [
     path("template_callable_exception/", template_callable_exception),
     path("named_ok/", ok, name="named_ok_view"),
     path("custom_event/", custom_event),
+    path("sleep/", sleep),
 ]
 
 application = get_wsgi_application()
