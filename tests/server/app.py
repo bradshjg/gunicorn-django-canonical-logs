@@ -1,3 +1,4 @@
+import signal
 import time
 
 from django.core.management import execute_from_command_line
@@ -46,8 +47,20 @@ def sleep(request):
     return HttpResponse(f"Slept {duration} seconds!")
 
 
+def rude_sleep(request):
+    duration = int(request.GET["duration"])
+    simulate_blocking_and_ignoring_signals(duration)
+    return HttpResponse(f"Slept {duration} seconds!")
+
+
 def simulate_blocking(duration):
     time.sleep(duration)
+
+
+def simulate_blocking_and_ignoring_signals(duration):
+    signal.signal(signal.SIGABRT, signal.SIG_IGN)
+    time.sleep(duration)
+    signal.signal(signal.SIGABRT, signal.SIG_DFL)
 
 
 urlpatterns = [
@@ -58,6 +71,7 @@ urlpatterns = [
     path("named_ok/", ok, name="named_ok_view"),
     path("custom_event/", custom_event),
     path("sleep/", sleep),
+    path("rude_sleep/", rude_sleep),
 ]
 
 application = get_wsgi_application()
