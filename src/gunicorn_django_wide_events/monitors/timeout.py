@@ -20,11 +20,12 @@ def on_timeout(timeout: int, worker: Worker, req: Request):
     context["timeout"] = get_stack_loc_context(stack_summary)
     req.timed_out = True
 
-    worker.log.timeout(req, timeout)
+    worker.log.timeout()
 
 
 @register_hook
 def pre_request(worker, req):
+    req.timed_out = False
     worker_timeout = worker.cfg.timeout  # N.B. timeout from config, worker.timeout is the notify interval
     timeout = max(worker_timeout - TIMEOUT_BUFFER_SECONDS, TIMEOUT_BUFFER_SECONDS)
     worker.timeout_timer = threading.Timer(timeout, on_timeout, args=(timeout, worker, req))
