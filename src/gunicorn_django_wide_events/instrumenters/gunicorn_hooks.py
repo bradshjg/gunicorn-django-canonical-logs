@@ -4,11 +4,11 @@ from gunicorn_django_wide_events.instrumenters.instrumenters import instrumenter
 
 
 @register_hook
-def post_worker_init(_):
+def post_fork(_server, _worker):
     for instrumenter in instrumenter_registry.values():
         instrumenter.setup()
 
 
 @register_hook
-def pre_request(*_):
+def pre_request(_worker, _req):
     context.reset()
