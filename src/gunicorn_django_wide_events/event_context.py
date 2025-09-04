@@ -10,6 +10,7 @@ def quote(token):
     return f'"{token}"'
 
 
+# TODO: reckon with this API, it can't _really_ be a dict right?
 class EventContext(UserDict):
     """Context available to loggers or"""
 
