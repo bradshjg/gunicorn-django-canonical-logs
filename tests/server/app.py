@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.urls import path
 
 from gunicorn_django_wide_events.event_context import context
+import requests
 
 
 class MyError(Exception):
@@ -28,12 +29,21 @@ def view_exception(_):
     return HttpResponse("We shouldn't get here!")
 
 
+def third_party_exception(_):
+    requests.get("http://no-way-this-will-resolve-in-dns.com")
+    return HttpResponse("We shouldn't get here!")
+
+
 def template_syntax_exception(request):
     return render(request, "syntax_exception.html")
 
 
 def template_callable_exception(request):
     return render(request, "callable_exception.html", {"callable": func_that_throws})
+
+
+def template_ok(request):
+    return render(request, "ok.html")
 
 
 def custom_event(_):
@@ -65,7 +75,9 @@ def simulate_blocking_and_ignoring_signals(duration):
 
 urlpatterns = [
     path("ok/", ok),
+    path("template_ok/", template_ok),
     path("view_exception/", view_exception),
+    path("third_party_exception/", third_party_exception),
     path("template_syntax_exception/", template_syntax_exception),
     path("template_callable_exception/", template_callable_exception),
     path("named_ok/", ok, name="named_ok_view"),
