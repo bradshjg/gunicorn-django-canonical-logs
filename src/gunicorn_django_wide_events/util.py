@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import itertools
 import os
 import sys
+import pathlib
 import sysconfig
 from typing import TYPE_CHECKING
 
@@ -9,16 +11,18 @@ if TYPE_CHECKING:
     import traceback
 
 
-def filter_stack_summary(stack_summaries: traceback.StackSummary) -> list[traceback.FrameSummary]:
-    library_paths = sysconfig.get_paths().values()
-    return [
-        frame_summary
-        for frame_summary in stack_summaries
-        if not any(frame_summary.filename.startswith((path, os.path.realpath(path))) for path in library_paths)
-    ]
+def _filter_stack_summary(stack_summary: traceback.StackSummary) -> tuple[list[traceback.FrameSummary], list[traceback.FrameSummary]]:
+    library_paths = list(sysconfig.get_paths().values()) + [str(pathlib.Path(__file__).parent)]
+    library_frames, app_frames = [], []
+    for frame_summary in stack_summary:
+        if any(frame_summary.filename.startswith((path, os.path.realpath(path))) for path in library_paths):
+            library_frames.append(frame_summary)
+        else:
+            app_frames.append(frame_summary)
+    return library_frames, app_frames
 
 
-def format_frame_summary(frame_summary: traceback.FrameSummary) -> str:
+def _format_frame_summary(frame_summary: traceback.FrameSummary) -> str:
     # use sys.path to find the shortest possible import (i.e. strip base project path)
     python_paths = sorted(sys.path, key=len, reverse=True)
     fname = frame_summary.filename
@@ -32,25 +36,18 @@ def format_frame_summary(frame_summary: traceback.FrameSummary) -> str:
 
 
 def get_stack_loc_context(stack_summary: traceback.StackSummary):
-    filtered_frame_summaries = filter_stack_summary(stack_summary)
+    library_frames, app_frames = _filter_stack_summary(stack_summary)
 
-    if not filtered_frame_summaries:
-        # only library code in the stack, use the last frame
-        return {"loc": format_frame_summary(stack_summary[-1])}
-
-    if len(filtered_frame_summaries) == 1:
-        app_frame_summary = filtered_frame_summaries[0]
-        # cause might be in library code
-        cause_frame_summary = stack_summary[-1]
-
-        if cause_frame_summary == app_frame_summary:  # there's no deeper cause
-            return {"loc": format_frame_summary(app_frame_summary)}
-        return {
-            "loc": format_frame_summary(app_frame_summary),
-            "cause_loc": format_frame_summary(cause_frame_summary),
-        }
-
+    if not app_frames:
+        loc, cause_loc = library_frames[0], library_frames[-1]
+    elif len(app_frames) > 1:
+        loc, cause_loc = app_frames[0], app_frames[-1]
+    else:
+        loc, cause_loc = app_frames[0], library_frames[-1]
     return {
-        "loc": format_frame_summary(filtered_frame_summaries[0]),
-        "cause_loc": format_frame_summary(filtered_frame_summaries[-1]),
+        "loc": _format_frame_summary(loc),
+        "cause_loc": _format_frame_summary(cause_loc),
     }
+
+
+
