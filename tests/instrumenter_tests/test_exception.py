@@ -30,3 +30,5 @@ def test_view_exception(live_server):
 
     assert re.match(r"app\.py:\d+:view_exception", exc_context["loc"])
     assert re.match(r"app\.py:\d+:func_that_throws", exc_context["cause_loc"])
+
+# TODO need to add template exception handling

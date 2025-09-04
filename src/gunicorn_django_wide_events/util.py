@@ -34,7 +34,10 @@ def _format_frame_summary(frame_summary: traceback.FrameSummary) -> str:
 
     return f"{fname}:{frame_summary.lineno}:{frame_summary.name}"
 
-
+# TODO add tests for this, it's pretty gnarly...also need to think through
+# the fallthrough case here...as written there no inherent ordering to
+# the loc and cause_loc (right?) but there needs to be since we don't
+# want to show a cause higher in the stack that the loc.
 def get_stack_loc_context(stack_summary: traceback.StackSummary):
     library_frames, app_frames = _filter_stack_summary(stack_summary)
 

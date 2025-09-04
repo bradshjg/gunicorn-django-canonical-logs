@@ -36,3 +36,6 @@ def test_context_reset():
     assert str(context) == "foo=bar baz=qux"
     context.reset()
     assert str(context) == ""
+
+# TODO when we move this into it's own formatter, use https://github.com/josheppinette/python-logfmter/blob/main/tests/test_formatter.py
+# for inspirationn for tests

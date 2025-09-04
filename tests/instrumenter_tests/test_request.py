@@ -25,3 +25,6 @@ def test_request(client, settings):
 
     assert re.match(r"0\.\d{3}", resp_context["time"])
     assert re.match(r"0\.\d{3}", resp_context["cpu_time"])
+
+
+# TODO test this under failure conditions as well, thinking like not found, other Django stuff
