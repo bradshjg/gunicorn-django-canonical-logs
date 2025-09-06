@@ -69,6 +69,7 @@ def test_access_event(server) -> None:
     requests.get("http://localhost:8080/ok/")
 
     log = read_first_line(stdout)
+    assert log.startswith("event_type=request")
     assert "req_path=/ok/" in log
     assert "resp_status=200" in log
 
@@ -121,6 +122,7 @@ def test_timeout_event(server) -> None:
     requests.get("http://localhost:8080/sleep/?duration=10")
 
     log = read_first_line(stdout)
+    assert log.startswith("event_type=timeout")
     assert re.search(r"timeout_loc=app\.py:\d+:sleep", log)
     assert re.search(r"timeout_cause_loc=app\.py:\d+:simulate_blocking", log)
 
@@ -133,5 +135,6 @@ def test_sigkill_timeout_event(server) -> None:
         requests.get("http://localhost:8080/rude_sleep/?duration=10")
 
     log = read_first_line(stdout)
+    assert log.startswith("event_type=timeout")
     assert re.search(r"timeout_loc=app\.py:\d+:rude_sleep", log)
     assert re.search(r"timeout_cause_loc=app\.py:\d+:simulate_blocking_and_ignoring_signals", log)

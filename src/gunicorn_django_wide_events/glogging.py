@@ -23,7 +23,7 @@ class Logger(glogging.Logger):
         self.access_log.info(LogFmt.format(Context))
 
     def timeout(self):
-        Context.set(self.EVENT_TYPE, "timeout", namespace=self.EVENT_NAMESPACE)
+        Context.update(context={self.EVENT_TYPE: "timeout"}, namespace=self.EVENT_NAMESPACE, beginning=True)
 
         for instrumenter in instrumenter_registry.values():
             instrumenter.call()
