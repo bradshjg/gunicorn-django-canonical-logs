@@ -30,7 +30,13 @@ def test_request_404(client, settings):
     resp = client.get("/does-not-exist/")
     assert resp.status_code == 404
 
-    expected_req_context = {"method": "GET", "path": "/does-not-exist/", "view": None, "referrer": None, "user_agent": None}
+    expected_req_context = {
+        "method": "GET",
+        "path": "/does-not-exist/",
+        "view": None,
+        "referrer": None,
+        "user_agent": None,
+    }
 
     req_namespace = "req"
     resp_namespace = "resp"
@@ -47,10 +53,16 @@ def test_request_404(client, settings):
 def test_request_500(client, settings):
     settings.MIDDLEWARE = [RequestInstrumenter().request_middleware_string_path]
 
-    with pytest.raises(Exception):
+    with pytest.raises(match="Oh noes!"):
         client.get("/view_exception/")
 
-    expected_req_context = {"method": "GET", "path": "/view_exception/", "view": "app.view_exception", "referrer": None, "user_agent": None}
+    expected_req_context = {
+        "method": "GET",
+        "path": "/view_exception/",
+        "view": "app.view_exception",
+        "referrer": None,
+        "user_agent": None,
+    }
 
     req_namespace = "req"
     resp_namespace = "resp"
