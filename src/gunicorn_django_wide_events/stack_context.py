@@ -4,7 +4,7 @@ import os
 import sys
 import pathlib
 import sysconfig
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     import traceback
@@ -21,7 +21,9 @@ def _filter_stack_summary(stack_summary: traceback.StackSummary) -> tuple[list[t
     return library_frames, app_frames
 
 
-def _format_frame_summary(frame_summary: traceback.FrameSummary) -> str:
+def _format_frame_summary(frame_summary: Optional[traceback.FrameSummary]) -> str | None:
+    if not frame_summary:
+        return
     # use sys.path to find the shortest possible import (i.e. strip base project path)
     python_paths = sorted(sys.path, key=len, reverse=True)
     fname = frame_summary.filename
@@ -33,10 +35,7 @@ def _format_frame_summary(frame_summary: traceback.FrameSummary) -> str:
 
     return f"{fname}:{frame_summary.lineno}:{frame_summary.name}"
 
-# TODO add tests for this, it's pretty gnarly...also need to think through
-# the fallthrough case here...as written there no inherent ordering to
-# the loc and cause_loc (right?) but there needs to be since we don't
-# want to show a cause higher in the stack that the loc.
+
 def get_stack_loc_context(stack_summary: traceback.StackSummary):
     library_frames, app_frames = _filter_stack_summary(stack_summary)
 
@@ -45,7 +44,7 @@ def get_stack_loc_context(stack_summary: traceback.StackSummary):
     elif len(app_frames) > 1:
         loc, cause_loc = app_frames[0], app_frames[-1]
     else:
-        loc, cause_loc = app_frames[0], library_frames[-1]
+        loc, cause_loc = app_frames[0], stack_summary[-1]
     return {
         "loc": _format_frame_summary(loc),
         "cause_loc": _format_frame_summary(cause_loc),

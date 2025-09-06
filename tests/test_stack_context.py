@@ -1,0 +1,40 @@
+import shutil
+import traceback
+
+import pytest
+
+from gunicorn_django_wide_events.stack_context import get_stack_loc_context
+
+
+def func_that_throws_directly():
+    raise Exception("throwing!")
+
+def func_that_throws_from_library():
+    shutil.copy("non-existent-source", "non-existent-destination")
+
+
+def test_app_code_is_cause_if_app_code_throws_directly():
+    with pytest.raises(Exception) as e:
+        func_that_throws_directly()
+    context = get_stack_loc_context(traceback.extract_tb(e.tb))
+
+    assert "test_app_code_is_cause_if_app_code_throws_directly" in context["loc"]
+    assert "func_that_throws_directly" in context["cause_loc"]
+
+
+def test_app_code_is_cause_if_app_code_throws_from_library():
+    with pytest.raises(Exception) as e:
+        func_that_throws_from_library()
+    context = get_stack_loc_context(traceback.extract_tb(e.tb))
+
+    assert "test_app_code_is_cause_if_app_code_throws_from_library" in context["loc"]
+    assert "func_that_throws_from_library" in context["cause_loc"]
+
+
+def test_library_code_is_cause_if_no_app_code_in_stack():
+    with pytest.raises(FileNotFoundError) as e:
+        shutil.copy("non-existent-source", "non-existent-destination")
+    context = get_stack_loc_context(traceback.extract_tb(e.tb))
+
+    assert "test_library_code_is_cause_if_no_app_code_in_stack" in context["loc"]
+    assert "shutil.py" in context["cause_loc"]
