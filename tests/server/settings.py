@@ -21,3 +21,5 @@ TEMPLATES = [
 ]
 
 STATIC_URL = "static/"  # HACK otherwise Django liveserver test cases parse the base url as bytes
+
+INSTALLED_APPS = ("db",)

@@ -7,6 +7,7 @@ from django.core.wsgi import get_wsgi_application
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import path
+from django.views.generic import TemplateView
 
 from gunicorn_django_wide_events import Context, register_instrumenter
 
@@ -52,6 +53,10 @@ def template_ok(request):
     return render(request, "ok.html")
 
 
+class TemplateOKClassView(TemplateView):
+    template_name = "ok.html"
+
+
 def custom_event(_):
     Context.set("custom_event", 1)
     return HttpResponse("Added custom event!")
@@ -69,6 +74,15 @@ def rude_sleep(request):
     return HttpResponse(f"Slept {duration} seconds!")
 
 
+def db_queries(_):
+    from db.models import Person
+
+    p = Person(first_name="first", last_name="last")
+    p.save()
+    p.refresh_from_db()
+    return HttpResponse("OK")
+
+
 def simulate_blocking(duration):
     time.sleep(duration)
 
@@ -82,6 +96,7 @@ def simulate_blocking_and_ignoring_signals(duration):
 urlpatterns = [
     path("ok/", ok),
     path("template_ok/", template_ok),
+    path("template_ok_class_view/", TemplateOKClassView.as_view()),
     path("view_exception/", view_exception),
     path("third_party_exception/", third_party_exception),
     path("template_syntax_exception/", template_syntax_exception),
@@ -90,6 +105,7 @@ urlpatterns = [
     path("custom_event/", custom_event),
     path("sleep/", sleep),
     path("rude_sleep/", rude_sleep),
+    path("db_queries/", db_queries),
 ]
 
 application = get_wsgi_application()
