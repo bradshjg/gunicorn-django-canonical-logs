@@ -9,7 +9,7 @@ from gunicorn_django_wide_events.event_context import context
 from gunicorn_django_wide_events.gunicorn_hooks.hooks import (
     register_hook,  # FIXME: should import as `from gdwe.gunicorn_hooks import register_hook``
 )
-from gunicorn_django_wide_events.util import get_stack_loc_context
+from gunicorn_django_wide_events.stack_context import get_stack_loc_context
 
 TIMEOUT_BUFFER_SECONDS = 0.2
 

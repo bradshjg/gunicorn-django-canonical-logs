@@ -8,7 +8,7 @@ from django.core.handlers import exception
 from gunicorn_django_wide_events.event_context import context
 from gunicorn_django_wide_events.instrumenters.base import BaseInstrumenter
 from gunicorn_django_wide_events.instrumenters.instrumenters import register_instrumenter
-from gunicorn_django_wide_events.util import get_stack_loc_context
+from gunicorn_django_wide_events.stack_context import get_stack_loc_context
 
 if TYPE_CHECKING:
     from types import TracebackType
