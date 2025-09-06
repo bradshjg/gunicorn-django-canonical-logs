@@ -5,7 +5,7 @@ import traceback
 from gunicorn.http.message import Request
 from gunicorn.workers.base import Worker
 
-from gunicorn_django_wide_events.event_context import context
+from gunicorn_django_wide_events.event_context import Context
 from gunicorn_django_wide_events.gunicorn_hooks.hooks import (
     register_hook,  # FIXME: should import as `from gdwe.gunicorn_hooks import register_hook``
 )
@@ -17,7 +17,8 @@ TIMEOUT_BUFFER_SECONDS = 0.2
 def on_timeout(timeout: int, worker: Worker, req: Request):
     main_thread_frame = sys._current_frames()[threading.main_thread().ident]  # noqa: SLF001 _current_frames is documented
     stack_summary = traceback.extract_stack(main_thread_frame)
-    context["timeout"] = get_stack_loc_context(stack_summary)
+    Context.set("time", timeout, namespace="resp")
+    Context.update(namespace="timeout", context=get_stack_loc_context(stack_summary))
     req.timed_out = True
 
     worker.log.timeout()

@@ -1,48 +1,32 @@
-import re
-from collections import UserDict
+from __future__ import annotations
 
-valid_unquoted_regex = re.compile(r"^[a-zA-Z0-9_\-]+$")
-
-
-def quote(token):
-    if valid_unquoted_regex.match(token):
-        return token
-    return f'"{token}"'
+from collections import defaultdict
+from typing import Any
 
 
-# TODO: reckon with this API, it can't _really_ be a dict right?
-class EventContext(UserDict):
-    """Context available to loggers or"""
+class EventContext:
+    DEFAULT_NAMESPACE = "app"
 
-    # FIXME: let's format the context in the logger instead of the context knowing how to format itself.
-    # I think the original idea is that we could share formatting across gunicorn and Django, but I don't
-    # think we need to log both places!
-    def __str__(self):
-        """String representation for logging
+    def __init__(self):
+        self._context = defaultdict(dict)
 
-        All keys/values are cast to strings via __format__.
+    def get(self, key: str, *, namespace: str = DEFAULT_NAMESPACE) -> Any:
+        return self._context[namespace].get(key)
 
-        2 modes are supported:
+    def set(self, key: str, val: Any, *, namespace: str = DEFAULT_NAMESPACE) -> None:
+        self._context[namespace][key] = val
 
-        * unprefixed: dict[k_n: str, v_n: str] -> "k1=v1 k2=v2"
-        * prefixed: dict[k: str, dict[k_n: str, v_n: str]] -> "k_k1=v1 k_k2=v2"
-        """
-        tokens = []
-        for k, v in self.data.items():
-            if v is None:
-                continue
-            if isinstance(v, dict):
-                for dict_k, dict_v in v.items():
-                    tokens += [f"{k}_{dict_k}", format(dict_v)]
-            else:
-                tokens += [format(k), format(v)]
+    def update(self, *, context: dict[str, Any], namespace: str = DEFAULT_NAMESPACE, beginning: bool = False) -> None:
+        self._context[namespace].update(context)
+        if beginning:
+            reordered = {namespace: self._context.pop(namespace), **self._context}
+            self._context = defaultdict(dict, reordered)
 
-        formatted = map(quote, tokens)
+    def raw_items(self):
+        return self._context.items()
 
-        return " ".join(["=".join(pair) for pair in zip(*([iter(formatted)] * 2))])
-
-    def reset(self):
-        self.data = {}
+    def reset(self) -> None:
+        self._context = defaultdict(dict)
 
 
-context = EventContext()
+Context = EventContext()

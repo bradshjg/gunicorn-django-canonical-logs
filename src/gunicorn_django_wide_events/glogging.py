@@ -1,33 +1,35 @@
-import datetime
-
 from gunicorn import glogging
 from gunicorn.http.message import Request
-from gunicorn.http.wsgi import Response
 
-from gunicorn_django_wide_events.event_context import context  # FIXME: should import as `from gdwe import context`
+from gunicorn_django_wide_events.event_context import Context
 from gunicorn_django_wide_events.instrumenters.instrumenters import (
     instrumenter_registry,  # FIXME: should import as `from gdwe.instrumenters import instrumener_registry`
 )
+from gunicorn_django_wide_events.logfmt import LogFmt
+
 
 # TODO: consider if we want to also support relatively minimal event logging that doesn't assume fancy log setup but can be emitted within a request?
 # If so, maybe use the request subset of context at least?
 class Logger(glogging.Logger):
-    def access(self, _resp, req, *args, **kwargs):
+    EVENT_TYPE = "type"
+    EVENT_NAMESPACE = "event"
+
+    def access(self, _resp, req: Request, *_args, **_kwargs):
         # gunicorn calls this on abort, but the data is weird (e.g. request timing is abort handler timing?); silence it
         if req.timed_out:
             return
 
-        context["type"] = "request"
+        Context.update(context={self.EVENT_TYPE: "request"}, namespace=self.EVENT_NAMESPACE, beginning=True)
 
         for instrumenter in instrumenter_registry.values():
             instrumenter.call()
 
-        self.access_log.info(str(context))
+        self.access_log.info(LogFmt.format(Context))
 
     def timeout(self):
-        context["type"] = "timeout"
+        Context.set(self.EVENT_TYPE, "timeout", namespace=self.EVENT_NAMESPACE)
 
         for instrumenter in instrumenter_registry.values():
             instrumenter.call()
 
-        self.access_log.info(str(context))
+        self.access_log.info(LogFmt.format(Context))

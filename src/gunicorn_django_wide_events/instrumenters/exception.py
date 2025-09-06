@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 
 from django.core.handlers import exception
 
-from gunicorn_django_wide_events.event_context import context
+from gunicorn_django_wide_events.event_context import Context
 from gunicorn_django_wide_events.instrumenters.base import BaseInstrumenter
 from gunicorn_django_wide_events.instrumenters.instrumenters import register_instrumenter
 from gunicorn_django_wide_events.stack_context import get_stack_loc_context
@@ -35,7 +35,7 @@ class ExceptionInstrumenter(BaseInstrumenter):
             loc_context = get_stack_loc_context(traceback.extract_tb(tb))
             exc_context.update(loc_context)
 
-            context["exc"] = exc_context
+            Context.update(namespace="exc", context=exc_context)
 
             return self._orig_handle_uncaught_exception(request, resolver, exc_info)
 

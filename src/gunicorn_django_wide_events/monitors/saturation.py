@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @dataclasses.dataclass
 class SaturationStats:
-    w_num: int = 0
+    w_count: int = 0
     w_active: int = 0
     backlog: int = 0
 
@@ -29,7 +29,7 @@ class SaturationStatsShared:
     No synchronization is done. The assumption is that this will be atomic, or close enough to it.
     """
 
-    STRUCT_FMT = 3 * "H"  # 3*uint16 (w_num, w_active, backlog)
+    STRUCT_FMT = 3 * "H"  # 3*uint16 (w_count, w_active, backlog)
     STRUCT_SIZE = struct.calcsize(STRUCT_FMT)
 
     def __init__(self, shm):
@@ -159,12 +159,12 @@ def monitor_saturation(arbiter: Arbiter):
             break
 
         workers: list[Worker] = arbiter.WORKERS.values()
-        w_num = len(workers)
+        w_count = len(workers)
         w_active = get_w_active(arbiter, workers)
 
         backlog = get_backlog(arbiter)
 
-        arbiter.saturation_stats.set(stats=SaturationStats(w_num, w_active, backlog))
+        arbiter.saturation_stats.set(stats=SaturationStats(w_count, w_active, backlog))
 
         time.sleep(update_interval_seconds)
 

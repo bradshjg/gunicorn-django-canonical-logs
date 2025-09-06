@@ -1,4 +1,4 @@
-from gunicorn_django_wide_events.event_context import context
+from gunicorn_django_wide_events.event_context import Context
 from gunicorn_django_wide_events.gunicorn_hooks.hooks import register_hook
 from gunicorn_django_wide_events.instrumenters.instrumenters import instrumenter_registry
 
@@ -11,4 +11,4 @@ def post_fork(_server, _worker):
 
 @register_hook
 def pre_request(_worker, _req):
-    context.reset()
+    Context.reset()

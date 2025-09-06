@@ -1,14 +1,14 @@
 import signal
 import time
 
+import requests
 from django.core.management import execute_from_command_line
 from django.core.wsgi import get_wsgi_application
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import path
 
-from gunicorn_django_wide_events.event_context import context
-import requests
+from gunicorn_django_wide_events import Context
 
 
 class MyError(Exception):
@@ -47,7 +47,7 @@ def template_ok(request):
 
 
 def custom_event(_):
-    context["custom_event"] = 1
+    Context.set("custom_event", 1)
     return HttpResponse("Added custom event!")
 
 

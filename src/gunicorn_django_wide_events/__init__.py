@@ -5,3 +5,4 @@ from gunicorn_django_wide_events import (
     instrumenters,  # noqa: F401 registers hooks
     monitors,  # noqa: F401 registers hooks
 )
+from gunicorn_django_wide_events.event_context import Context  # noqa F401 friendly namespace

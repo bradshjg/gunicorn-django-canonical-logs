@@ -1,17 +1,19 @@
 from __future__ import annotations
 
 import os
-import sys
 import pathlib
+import sys
 import sysconfig
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import traceback
 
 
-def _filter_stack_summary(stack_summary: traceback.StackSummary) -> tuple[list[traceback.FrameSummary], list[traceback.FrameSummary]]:
-    library_paths = list(sysconfig.get_paths().values()) + [str(pathlib.Path(__file__).parent)]
+def _filter_stack_summary(
+    stack_summary: traceback.StackSummary,
+) -> tuple[list[traceback.FrameSummary], list[traceback.FrameSummary]]:
+    library_paths = [*sysconfig.get_paths().values(), str(pathlib.Path(__file__).parent)]
     library_frames, app_frames = [], []
     for frame_summary in stack_summary:
         if any(frame_summary.filename.startswith((path, os.path.realpath(path))) for path in library_paths):
@@ -21,7 +23,7 @@ def _filter_stack_summary(stack_summary: traceback.StackSummary) -> tuple[list[t
     return library_frames, app_frames
 
 
-def _format_frame_summary(frame_summary: Optional[traceback.FrameSummary]) -> str | None:
+def _format_frame_summary(frame_summary: traceback.FrameSummary | None) -> str | None:
     if not frame_summary:
         return
     # use sys.path to find the shortest possible import (i.e. strip base project path)
@@ -49,6 +51,3 @@ def get_stack_loc_context(stack_summary: traceback.StackSummary):
         "loc": _format_frame_summary(loc),
         "cause_loc": _format_frame_summary(cause_loc),
     }
-
-
-
