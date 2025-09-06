@@ -6,8 +6,6 @@ from gunicorn_django_wide_events.instrumenters.registry import instrumenter_regi
 from gunicorn_django_wide_events.logfmt import LogFmt
 
 
-# TODO: consider if we want to also support relatively minimal event logging that doesn't assume fancy log setup but can be emitted within a request?
-# If so, maybe use the request subset of context at least?
 class Logger(glogging.Logger):
     EVENT_TYPE = "type"
     EVENT_NAMESPACE = "event"
