@@ -104,6 +104,16 @@ def test_custom_event(server) -> None:
     assert "custom_event=1" in log
 
 
+def test_app_instrumenter(server) -> None:
+    stdout, _ = server
+    clear_output(stdout)
+
+    requests.get("http://localhost:8080/custom_event/")
+
+    log = read_first_line(stdout)
+    assert "app_key=val" in log
+
+
 def test_timeout_event(server) -> None:
     stdout, _ = server
     clear_output(stdout)

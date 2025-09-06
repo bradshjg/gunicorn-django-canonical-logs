@@ -8,7 +8,13 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import path
 
-from gunicorn_django_wide_events import Context
+from gunicorn_django_wide_events import Context, register_instrumenter
+
+
+@register_instrumenter
+class MyInstrumenter:
+    def call(self):
+        Context.set("key", "val")
 
 
 class MyError(Exception):

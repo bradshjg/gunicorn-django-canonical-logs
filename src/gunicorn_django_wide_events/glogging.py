@@ -2,9 +2,7 @@ from gunicorn import glogging
 from gunicorn.http.message import Request
 
 from gunicorn_django_wide_events.event_context import Context
-from gunicorn_django_wide_events.instrumenters.instrumenters import (
-    instrumenter_registry,  # FIXME: should import as `from gdwe.instrumenters import instrumener_registry`
-)
+from gunicorn_django_wide_events.instrumenters.registry import instrumenter_registry
 from gunicorn_django_wide_events.logfmt import LogFmt
 
 

@@ -4,7 +4,7 @@ from django.conf import settings
 
 from gunicorn_django_wide_events.event_context import Context
 from gunicorn_django_wide_events.instrumenters.base import BaseInstrumenter
-from gunicorn_django_wide_events.instrumenters.instrumenters import register_instrumenter
+from gunicorn_django_wide_events.instrumenters.registry import register_instrumenter
 
 
 def _django_middleware(get_response):

@@ -9,7 +9,7 @@ import time
 from multiprocessing.shared_memory import SharedMemory
 from typing import TYPE_CHECKING
 
-from gunicorn_django_wide_events.gunicorn_hooks.hooks import register_hook
+from gunicorn_django_wide_events.gunicorn_hooks.registry import register_hook
 
 if TYPE_CHECKING:
     from gunicorn.arbiter import Arbiter

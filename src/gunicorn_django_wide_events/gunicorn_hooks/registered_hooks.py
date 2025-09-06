@@ -5,7 +5,7 @@ Usage: Add `from gunicorn_django_wide_events.registered_hook import *` to your g
 N.B.: You might _want_ to metaprogram these...but gunciorn does arity-checking, so no *args, **kwargs shenanigans!
 """
 
-from gunicorn_django_wide_events.gunicorn_hooks.hooks import Hook, hook_registry
+from gunicorn_django_wide_events.gunicorn_hooks.registry import Hook, hook_registry
 
 
 def on_starting(server):
