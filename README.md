@@ -5,7 +5,7 @@
 
 -----
 
-`gunicorn-django-wide-events` provides TODO
+`gunicorn-django-wide-events` provides extensible [canonical log lines](https://brandur.org/canonical-log-lines) for Gunicorn/Django applications.
 
 ## Table of Contents
 
@@ -24,27 +24,35 @@ pip install gunicorn-django-wide-events
 
 ## Usage
 
-TODO
+Add the following to your gunicorn configuration file:
+
+```python
+from gunicorn_django_wide_events.glogging import Logger  #
+from gunicorn_django_wide_events.gunicorn_hooks import *  # register gunicorn hooks and instrumenters
+
+accesslog = "-"
+logger_class = Logger
+```
 
 ## Overview
 
-The goal is to enhance obersability by providing reasonable defaults and extensibility to answer two questions:
+The goal is to enhance obersvability by providing reasonable defaults and extensibility to answer two questions:
 
 * If my request succeeded, what did it do?
 * If my request timed out, what was it trying to do?
 
-To help answer those questions, two base types of events are used. A request will generate exactly one of these two types:
+To help answer those questions, two base types of events are used. A request will generate exactly one of these two `event_type`s:
 
 * `request` - when the worker process was able to successfully process the request and return a response.
 * `timeout` - when the worker process timed out before returning a response
 
-## Monitoring
+## Example logs
 
-To provide insight into server state, process manager runs a monitoring thread that collects data about worker processes. Shared memory is used so that worker processes can enhance their events with server data that would otherwise not be available to them (data about their siblings).
+TODO: add examples
 
-## Timeouts
+## Adding instrumenters
 
-To support timeout events with application-level data, each request spawns a timeout thread with a shorter timeout than the arbiter process'. When that timeout is reached, the worker will emit a timeout event before aborting itself. The worker-internal timeout thread provides the ability to log application-level data that might escape the view of the `worker_abort` hook, since it relies on Python context switching instead of OS context switching. A C extension that doesn't checkpoint often enough could otherwise result in the arbiter gunicorn process ungracefully killing the worker without `worker_abort` ever firing.
+TODO: add docs on adding instrumenters
 
 ## License
 
