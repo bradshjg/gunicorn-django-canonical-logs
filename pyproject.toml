@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "gunicorn-django-canonical-logs"
 dynamic = ["version"]
-description = ''
+description = "Canonical log lines for Django project using Gunicorn sync workers"
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
