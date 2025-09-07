@@ -120,7 +120,7 @@ And then, from another shell:
 * `db_queries` (`int`) - total number of queries executed
 * `db_time` (`float`) - total time spent executing queries
 * `db_dup_queries` (`int`) - total number of non-unique queries (could indicate N+1 issues)
-* `db_dup_time` (`floag`) - total time spent executing non-unique queries (could indicate N+1 issues)
+* `db_dup_time` (`float`) - total time spent executing non-unique queries (could indicate N+1 issues)
 
 #### Saturation instrumenter
 
