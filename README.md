@@ -98,9 +98,9 @@ And then, from another shell:
 * `req_path` (`string`) - URL path
 * `req_referer` (`string`) - `Referrer` HTTP header
 * `req_user_agent` (`string`) - `User-Agent` HTTP header
-* `resp_time` (`float`) - wall time spent processing the request
+* `resp_time` (`float`) - wall time spent processing the request (in seconds)
 * `resp_view` (`string`) - Django view that generated the response
-* `resp_cpu_time` (`float`) - CPU time (i.e. ignoring sleep/wait) spent processing the request
+* `resp_cpu_time` (`float`) - CPU time (i.e. ignoring sleep/wait) spent processing the request (in seconds)
 * `resp_status` (`int`) - HTTP status code of the response
 
 #### Exception instrumenter
@@ -118,9 +118,9 @@ And then, from another shell:
 #### Database instrumenter
 
 * `db_queries` (`int`) - total number of queries executed
-* `db_time` (`float`) - total time spent executing queries
-* `db_dup_queries` (`int`) - total number of non-unique queries (could indicate N+1 issues)
-* `db_dup_time` (`float`) - total time spent executing non-unique queries (could indicate N+1 issues)
+* `db_time` (`float`) - total time spent executing queries (in seconds)
+* `db_dup_queries` (`int`) - total number of non-unique queries; could indicate N+1 issues
+* `db_dup_time` (`float`) - total time spent executing non-unique queries (in seconds); could indicate N+1 issues
 
 #### Saturation instrumenter
 
