@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.urls import path
 from django.views.generic import TemplateView
 
-from gunicorn_django_wide_events import Context, register_instrumenter
+from gunicorn_django_canonical_logs import Context, register_instrumenter
 
 
 @register_instrumenter

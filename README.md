@@ -1,11 +1,11 @@
-# Gunicorn Django wide events
+# Gunicorn Django canonical logs
 
-[![PyPI - Version](https://img.shields.io/pypi/v/gunicorn-django-wide-events.svg)](https://pypi.org/project/gunicorn-django-wide-events)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gunicorn-django-wide-events.svg)](https://pypi.org/project/gunicorn-django-wide-events)
+[![PyPI - Version](https://img.shields.io/pypi/v/gunicorn-django-canonical-logs.svg)](https://pypi.org/project/gunicorn-django-canonical-logs)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gunicorn-django-canonical-logs.svg)](https://pypi.org/project/gunicorn-django-canonical-logs)
 
 -----
 
-`gunicorn-django-wide-events` provides extensible [canonical log lines](https://brandur.org/canonical-log-lines) for Gunicorn/Django applications.
+`gunicorn-django-canonical-logs` provides extensible [canonical log lines](https://brandur.org/canonical-log-lines) for Gunicorn/Django applications.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@
 ## Installation
 
 ```console
-pip install gunicorn-django-wide-events
+pip install gunicorn-django-canonical-logs
 ```
 
 ## Usage
@@ -56,4 +56,4 @@ TODO: add docs on adding instrumenters
 
 ## License
 
-`gunicorn-django-wide-events` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+`gunicorn-django-canonical-logs` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.

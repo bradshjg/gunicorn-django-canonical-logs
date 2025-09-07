@@ -5,7 +5,7 @@ from functools import wraps
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from gunicorn_django_wide_events.instrumenters.base import BaseInstrumenter
+    from gunicorn_django_canonical_logs.instrumenters.base import BaseInstrumenter
 
 
 class InstrumenterRegistry(UserDict):

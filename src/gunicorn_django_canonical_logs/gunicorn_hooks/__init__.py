@@ -1,5 +1,5 @@
-from gunicorn_django_wide_events.gunicorn_hooks.registered_hooks import *  # noqa F401 friendly namespace
-from gunicorn_django_wide_events.gunicorn_hooks.registry import register_hook  # noqa: F401 friendly namespace
+from gunicorn_django_canonical_logs.gunicorn_hooks.registered_hooks import *  # noqa F401 friendly namespace
+from gunicorn_django_canonical_logs.gunicorn_hooks.registry import register_hook  # noqa: F401 friendly namespace
 
 __all__ = (  # noqa: F405 support easy importing in gunicorn config
     "on_starting",

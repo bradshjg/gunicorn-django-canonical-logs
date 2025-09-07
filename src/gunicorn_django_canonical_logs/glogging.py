@@ -1,9 +1,9 @@
 from gunicorn import glogging
 from gunicorn.http.message import Request
 
-from gunicorn_django_wide_events.event_context import Context
-from gunicorn_django_wide_events.instrumenters.registry import instrumenter_registry
-from gunicorn_django_wide_events.logfmt import LogFmt
+from gunicorn_django_canonical_logs.event_context import Context
+from gunicorn_django_canonical_logs.instrumenters.registry import instrumenter_registry
+from gunicorn_django_canonical_logs.logfmt import LogFmt
 
 
 class Logger(glogging.Logger):

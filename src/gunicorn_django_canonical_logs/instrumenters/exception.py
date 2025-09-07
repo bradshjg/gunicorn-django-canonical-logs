@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING, Optional
 from django.core.handlers import exception
 from django.template.base import Node
 
-from gunicorn_django_wide_events.event_context import Context
-from gunicorn_django_wide_events.instrumenters.base import BaseInstrumenter
-from gunicorn_django_wide_events.instrumenters.registry import register_instrumenter
-from gunicorn_django_wide_events.stack_context import get_stack_loc_context
+from gunicorn_django_canonical_logs.event_context import Context
+from gunicorn_django_canonical_logs.instrumenters.base import BaseInstrumenter
+from gunicorn_django_canonical_logs.instrumenters.registry import register_instrumenter
+from gunicorn_django_canonical_logs.stack_context import get_stack_loc_context
 
 if TYPE_CHECKING:
     from types import TracebackType

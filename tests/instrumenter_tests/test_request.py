@@ -2,8 +2,8 @@ import re
 
 import pytest
 
-from gunicorn_django_wide_events import Context
-from gunicorn_django_wide_events.instrumenters.request import RequestInstrumenter
+from gunicorn_django_canonical_logs import Context
+from gunicorn_django_canonical_logs.instrumenters.request import RequestInstrumenter
 
 
 def test_request_ok(client, settings):

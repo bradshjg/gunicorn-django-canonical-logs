@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "gunicorn-django-wide-events"
+name = "gunicorn-django-canonical-logs"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
@@ -27,9 +27,9 @@ classifiers = [
 dependencies = ["django", "gunicorn"]
 
 [project.urls]
-Documentation = "https://github.com/bradshjg/gunicorn-django-wide-events#readme"
-Issues = "https://github.com/bradshjg/gunicorn-django-wide-events/issues"
-Source = "https://github.com/bradshjg/gunicorn-django-wide-events"
+Documentation = "https://github.com/bradshjg/gunicorn-django-canonical-logs#readme"
+Issues = "https://github.com/bradshjg/gunicorn-django-canonical-logs/issues"
+Source = "https://github.com/bradshjg/gunicorn-django-canonical-logs"
 
 [project.optional-dependencies]
 test = [
@@ -45,14 +45,14 @@ test = [
 ]
 
 [tool.hatch.version]
-path = "src/gunicorn_django_wide_events/__about__.py"
+path = "src/gunicorn_django_canonical_logs/__about__.py"
 
 [tool.hatch.envs.types]
 extra-dependencies = [
   "mypy>=1.0.0",
 ]
 [tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/gunicorn_django_wide_events tests}"
+check = "mypy --install-types --non-interactive {args:src/gunicorn_django_canonical_logs tests}"
 
 [tool.hatch.envs.hatch-test]
 features = [
@@ -72,16 +72,16 @@ DJANGO_SETTINGS_MODULE = "settings"
 pythonpath = "tests/server"
 
 [tool.coverage.run]
-source_pkgs = ["gunicorn_django_wide_events", "tests"]
+source_pkgs = ["gunicorn_django_canonical_logs", "tests"]
 branch = true
 parallel = true
 omit = [
-  "src/gunicorn_django_wide_events/__about__.py",
+  "src/gunicorn_django_canonical_logs/__about__.py",
 ]
 
 [tool.coverage.paths]
-gunicorn_django_wide_events = ["src/gunicorn_django_wide_events", "*/gunicorn-django-wide-events/src/gunicorn_django_wide_events"]
-tests = ["tests", "*/gunicorn-django-wide-events/tests"]
+gunicorn_django_canonical_logs = ["src/gunicorn_django_canonical_logs", "*/gunicorn-django-canonical-logs/src/gunicorn_django_canonical_logs"]
+tests = ["tests", "*/gunicorn-django-canonical-logs/tests"]
 
 [tool.coverage.report]
 exclude_lines = [

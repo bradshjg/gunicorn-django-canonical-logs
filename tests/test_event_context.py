@@ -1,4 +1,4 @@
-from gunicorn_django_wide_events.event_context import EventContext
+from gunicorn_django_canonical_logs.event_context import EventContext
 
 
 def test_set_without_namespace():

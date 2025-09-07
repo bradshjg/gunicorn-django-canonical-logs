@@ -2,9 +2,9 @@ import time
 
 from django.conf import settings
 
-from gunicorn_django_wide_events.event_context import Context
-from gunicorn_django_wide_events.instrumenters.base import BaseInstrumenter
-from gunicorn_django_wide_events.instrumenters.registry import register_instrumenter
+from gunicorn_django_canonical_logs.event_context import Context
+from gunicorn_django_canonical_logs.instrumenters.base import BaseInstrumenter
+from gunicorn_django_canonical_logs.instrumenters.registry import register_instrumenter
 
 
 def _django_middleware(get_response):

@@ -2,8 +2,8 @@ from typing import Generator
 
 import pytest
 
-from gunicorn_django_wide_events import Context
-from gunicorn_django_wide_events.instrumenters.saturation import SaturationInstrumenter
+from gunicorn_django_canonical_logs import Context
+from gunicorn_django_canonical_logs.instrumenters.saturation import SaturationInstrumenter
 
 
 @pytest.fixture

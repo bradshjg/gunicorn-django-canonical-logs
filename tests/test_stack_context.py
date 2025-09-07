@@ -3,7 +3,7 @@ import traceback
 
 import pytest
 
-from gunicorn_django_wide_events.stack_context import get_stack_loc_context
+from gunicorn_django_canonical_logs.stack_context import get_stack_loc_context
 
 
 class CustomError(Exception):

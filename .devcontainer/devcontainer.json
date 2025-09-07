@@ -1,5 +1,5 @@
 {
-    "name": "gunicorn-django-wide-events",
+    "name": "gunicorn-django-canonical-logs",
     "image": "mcr.microsoft.com/devcontainers/python",
     "customizations": {
         "vscode": {
@@ -7,7 +7,7 @@
                 "ms-python.python"
             ],
             "settings": {
-                "python.defaultInterpreterPath": "/workspaces/gunicorn-django-wide-events/.venv/dev/bin/python"
+                "python.defaultInterpreterPath": "/workspaces/gunicorn-django-canonical-logs/.venv/dev/bin/python"
             }
         }
     },

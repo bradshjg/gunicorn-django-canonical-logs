@@ -5,7 +5,7 @@ See https://github.com/josheppinette/python-logfmter/blob/83199b506708d2180a4376
 
 import re
 
-from gunicorn_django_wide_events.event_context import EventContext
+from gunicorn_django_canonical_logs.event_context import EventContext
 
 
 class LogFmt:

@@ -3,8 +3,8 @@ from typing import Generator
 import pytest
 import requests
 
-from gunicorn_django_wide_events.event_context import Context
-from gunicorn_django_wide_events.instrumenters.exception import ExceptionInstrumenter
+from gunicorn_django_canonical_logs.event_context import Context
+from gunicorn_django_canonical_logs.instrumenters.exception import ExceptionInstrumenter
 
 
 @pytest.fixture

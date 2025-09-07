@@ -1,6 +1,6 @@
 import pytest
 
-from gunicorn_django_wide_events.logfmt import LogFmt
+from gunicorn_django_canonical_logs.logfmt import LogFmt
 
 
 class MockContext:

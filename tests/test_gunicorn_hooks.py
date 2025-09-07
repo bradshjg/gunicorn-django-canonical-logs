@@ -1,4 +1,4 @@
-from gunicorn_django_wide_events.gunicorn_hooks.registry import Hook, HookRegistry, hook_registry, register_hook
+from gunicorn_django_canonical_logs.gunicorn_hooks.registry import Hook, HookRegistry, hook_registry, register_hook
 
 
 def test_valid_hook_registration():

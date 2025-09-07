@@ -5,9 +5,9 @@ import traceback
 from gunicorn.http.message import Request
 from gunicorn.workers.base import Worker
 
-from gunicorn_django_wide_events.event_context import Context
-from gunicorn_django_wide_events.gunicorn_hooks.registry import register_hook
-from gunicorn_django_wide_events.stack_context import get_stack_loc_context
+from gunicorn_django_canonical_logs.event_context import Context
+from gunicorn_django_canonical_logs.gunicorn_hooks.registry import register_hook
+from gunicorn_django_canonical_logs.stack_context import get_stack_loc_context
 
 TIMEOUT_BUFFER_SECONDS = 0.2
 
