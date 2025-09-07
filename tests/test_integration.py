@@ -95,6 +95,18 @@ def test_exception_event(server) -> None:
     assert 'exc_type=MyError exc_msg="Oh noes!"' in log
 
 
+@pytest.mark.django_db
+def test_db_event(server) -> None:
+    stdout, _ = server
+    clear_output(stdout)
+
+    requests.get("http://localhost:8080/db_queries/")
+
+    log = read_first_line(stdout)
+    assert "resp_status=200" in log
+    assert "db_queries=3" in log
+
+
 def test_custom_event(server) -> None:
     stdout, _ = server
     clear_output(stdout)

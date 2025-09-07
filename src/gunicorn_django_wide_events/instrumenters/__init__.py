@@ -1,6 +1,7 @@
 from gunicorn_django_wide_events.event_context import Context
 from gunicorn_django_wide_events.gunicorn_hooks import register_hook
 from gunicorn_django_wide_events.instrumenters import (  # noqa: F401 registers instrumenters
+    database,
     exception,
     request,
     saturation,

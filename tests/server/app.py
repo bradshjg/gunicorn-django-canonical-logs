@@ -80,6 +80,7 @@ def db_queries(_):
     p = Person(first_name="first", last_name="last")
     p.save()
     p.refresh_from_db()
+    p.refresh_from_db()
     return HttpResponse("OK")
 
 

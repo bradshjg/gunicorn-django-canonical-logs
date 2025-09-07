@@ -1,64 +1,83 @@
-import time
+from __future__ import annotations
 
+import time
+from collections import defaultdict
+from contextlib import contextmanager
+from typing import ClassVar
+
+from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.utils import CursorWrapper
 
 from gunicorn_django_wide_events.event_context import Context
 from gunicorn_django_wide_events.instrumenters.base import BaseInstrumenter
 from gunicorn_django_wide_events.instrumenters.registry import register_instrumenter
 
-NAMESPACE = "db"
+
+class QueryCollector:
+    _queries: ClassVar[dict[str, dict[str, int | float]]] = defaultdict(lambda: defaultdict(int))
+
+    @classmethod
+    def add(cls, sql: str, duration: float):
+        cls._queries[sql]["count"] += 1
+        cls._queries[sql]["duration"] += duration
+
+    @classmethod
+    def reset(cls):
+        cls._queries.clear()
+
+    @classmethod
+    def get_data(cls):
+        query_data = list(cls._queries.values())
+        dup_query_data = [data for data in query_data if data["count"] > 1]
+
+        return {
+            "queries": sum([query["count"] for query in query_data]),
+            "time": f"{sum([query["duration"] for query in query_data]):.3f}",
+            "dup_queries": sum([query["count"] for query in dup_query_data]),
+            "dup_time": f"{sum([query["duration"] for query in dup_query_data]):.3f}",
+        }
+
+    @classmethod
+    @contextmanager
+    def instrument(cls, sql):
+        start = time.monotonic()
+        try:
+            yield
+        finally:
+            duration = time.monotonic() - start
+            cls.add(sql, duration)
+
+
+class InstrumenterCursorWrapper(CursorWrapper):
+    def execute(self, sql, params=None):
+        with QueryCollector.instrument(sql):
+            return super().execute(sql, params)
+
+    def executemany(self, sql, param_list):
+        with QueryCollector.instrument(sql):
+            return super().executemany(sql, param_list)
 
 
 @register_instrumenter
 class DatabaseInstrumenter(BaseInstrumenter):
-    NAMESPACE = "exc"
+    NAMESPACE = "db"
 
     def __init__(self):
-        self._orig_execute = CursorWrapper.execute
-        self._orig_executemany = CursorWrapper.executemany
-        self.query_count = 0
-        self.query_time = 0
+        self._orig_make_cursor = BaseDatabaseWrapper.make_cursor
 
     def setup(self):
-        CursorWrapper.execute = self._patched_execute
-        CursorWrapper.executemany = self._patched_executemany
+        BaseDatabaseWrapper.make_cursor = self._patched_make_cursor
 
     def teardown(self):
-        CursorWrapper.execute = self._orig_execute
-        CursorWrapper.executemany = self._orig_executemany
-
-    def reset(self):
-        self.query_count = 0
-        self.query_time = 0
+        BaseDatabaseWrapper.make_cursor = self._orig_make_cursor
 
     def call(self):
-        Context.update(
-            namespace=NAMESPACE,
-            context={
-                "queries": self.query_count,
-                "time": self.query_time,
-            },
-        )
-        self.reset()
+        Context.update(namespace=self.NAMESPACE, context=QueryCollector.get_data())
+        QueryCollector.reset()
 
     @property
-    def _patched_execute(instrumenter):  # noqa: N805
-        def patch(self, sql, params=None):
-            start_time = time.monotonic()
-            res = instrumenter._orig_execute(self, sql, params)  # noqa: SLF001
-            instrumenter.query_time += time.monotonic() - start_time
-            instrumenter.query_count += 1
-            return res
+    def _patched_make_cursor(self):
+        def _patched(self, cursor):
+            return InstrumenterCursorWrapper(cursor, self)
 
-        return patch
-
-    @property
-    def _patched_executemany(instrumenter):  # noqa: N805
-        def patch(self, sql, param_list):
-            start_time = time.monotonic()
-            res = instrumenter._orig_executemany(self, sql, param_list)  # noqa: SLF001
-            instrumenter.query_time += time.monotonic() - start_time
-            instrumenter.query_count += 1
-            return res
-
-        return patch
+        return _patched

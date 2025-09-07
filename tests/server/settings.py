@@ -7,7 +7,8 @@ DEBUG = False
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": Path(__file__).parent / "db.sqlite3",
+        "TEST": {"NAME": Path(__file__).parent / "db.sqlite3"},
     }
 }
 
