@@ -98,7 +98,6 @@ And then, from another shell:
 * `req_path` (`string`) - URL path
 * `req_referer` (`string`) - `Referrer` HTTP header
 * `req_user_agent` (`string`) - `User-Agent` HTTP header
-
 * `resp_time` (`float`) - `time.monotonic` difference for the request
 * `resp_view` (`string`) - Django view that generated the response
 * `resp_cpu_time` (`float`) - `time.process_time` difference for the request
