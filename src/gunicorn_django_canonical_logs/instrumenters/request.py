@@ -52,5 +52,5 @@ class RequestInstrumenter(BaseInstrumenter):
         setattr(settings, self.middleware_setting, settings_middleware)
 
     def teardown(self):
-        settings_middleware = getattr(settings, self.middleware_setting)
+        settings_middleware: list = getattr(settings, self.middleware_setting)
         settings_middleware.remove(self.request_middleware_string_path)

@@ -47,8 +47,6 @@ def _patched_render_annotated(self, context):
 
 @register_instrumenter
 class ExceptionInstrumenter(BaseInstrumenter):
-    NAMESPACE = "exc"
-
     def setup(self):
         exception.handle_uncaught_exception = _patched_handle_uncaught_exception
         Node.render_annotated = _patched_render_annotated

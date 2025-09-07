@@ -39,7 +39,7 @@ class HookRegistry:
         self._registered_hooks[hook].add(callback)
 
     def reset(self):
-        self._registered_hooks = defaultdict(set)
+        self._registered_hooks.clear()
 
 
 hook_registry = HookRegistry()
