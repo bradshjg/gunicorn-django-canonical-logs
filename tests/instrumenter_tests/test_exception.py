@@ -75,6 +75,3 @@ def test_template_callable_exception(live_server):
     assert Context.get("template", namespace=exc_namespace) == "callable_exception.html:3"
     assert "template_callable_exception" in Context.get("loc", namespace=exc_namespace)
     assert "func_that_throws" in Context.get("cause_loc", namespace=exc_namespace)
-
-
-# TODO: need to add template exception handling
