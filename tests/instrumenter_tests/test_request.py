@@ -11,7 +11,7 @@ def test_request_ok(client, settings):
     resp = client.get("/ok/")
     assert resp.status_code == 200
 
-    expected_req_context = {"method": "GET", "path": "/ok/", "view": "app.ok", "referrer": None, "user_agent": None}
+    expected_req_context = {"method": "GET", "path": "/ok/", "referrer": None, "user_agent": None}
 
     req_namespace = "req"
     resp_namespace = "resp"
@@ -19,7 +19,10 @@ def test_request_ok(client, settings):
     for key, val in expected_req_context.items():
         assert Context.get(key, namespace=req_namespace) == val
 
-    assert Context.get("status", namespace=resp_namespace) == 200
+    expected_resp_context = {"status": 200, "view": "app.ok"}
+
+    for key, val in expected_resp_context.items():
+        assert Context.get(key, namespace=resp_namespace) == val
 
     assert re.match(r"0\.\d{3}", Context.get("time", namespace=resp_namespace))
     assert re.match(r"0\.\d{3}", Context.get("cpu_time", namespace=resp_namespace))
@@ -33,7 +36,6 @@ def test_request_404(client, settings):
     expected_req_context = {
         "method": "GET",
         "path": "/does-not-exist/",
-        "view": None,
         "referrer": None,
         "user_agent": None,
     }
@@ -44,7 +46,10 @@ def test_request_404(client, settings):
     for key, val in expected_req_context.items():
         assert Context.get(key, namespace=req_namespace) == val
 
-    assert Context.get("status", namespace=resp_namespace) == 404
+    expected_resp_context = {"status": 404, "view": None}
+
+    for key, val in expected_resp_context.items():
+        assert Context.get(key, namespace=resp_namespace) == val
 
     assert re.match(r"0\.\d{3}", Context.get("time", namespace=resp_namespace))
     assert re.match(r"0\.\d{3}", Context.get("cpu_time", namespace=resp_namespace))
@@ -59,7 +64,6 @@ def test_request_500(client, settings):
     expected_req_context = {
         "method": "GET",
         "path": "/view_exception/",
-        "view": "app.view_exception",
         "referrer": None,
         "user_agent": None,
     }
@@ -70,7 +74,10 @@ def test_request_500(client, settings):
     for key, val in expected_req_context.items():
         assert Context.get(key, namespace=req_namespace) == val
 
-    assert Context.get("status", namespace=resp_namespace) == 500
+    expected_resp_context = {"status": 500, "view": "app.view_exception"}
+
+    for key, val in expected_resp_context.items():
+        assert Context.get(key, namespace=resp_namespace) == val
 
     assert re.match(r"0\.\d{3}", Context.get("time", namespace=resp_namespace))
     assert re.match(r"0\.\d{3}", Context.get("cpu_time", namespace=resp_namespace))

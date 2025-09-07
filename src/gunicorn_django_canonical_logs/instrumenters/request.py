@@ -25,11 +25,11 @@ def _django_middleware(get_response):
         response = get_response(request)
 
         response_context = {
+            "view": getattr(request.resolver_match, "view_name", None),
             "time": f"{time.monotonic() - start_time:.3f}",
             "cpu_time": f"{time.process_time() - start_cpu_time:.3f}",
             "status": response.status_code,
         }
-        Context.set("view", getattr(request.resolver_match, "view_name", None), namespace="req")
         Context.update(namespace="resp", context=response_context)
 
         return response
