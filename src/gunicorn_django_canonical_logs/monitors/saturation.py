@@ -16,6 +16,9 @@ if TYPE_CHECKING:
     from gunicorn.workers.base import Worker
 
 
+SHARED_MEMORY_KWARGS = {"track": False} if sys.version_info >= (3, 13) else {}
+
+
 @dataclasses.dataclass
 class SaturationStats:
     w_count: int = 0
@@ -37,14 +40,14 @@ class SaturationStatsShared:
 
     @staticmethod
     def create():
-        shm = SharedMemory(create=True, size=SaturationStatsShared.STRUCT_SIZE, track=False)
+        shm = SharedMemory(create=True, size=SaturationStatsShared.STRUCT_SIZE, **SHARED_MEMORY_KWARGS)
         inst = SaturationStatsShared(shm)
         inst.set(stats=SaturationStats())
         return inst
 
     @staticmethod
     def from_name(name):
-        shm = SharedMemory(name, track=False)
+        shm = SharedMemory(name, **SHARED_MEMORY_KWARGS)
         return SaturationStatsShared(shm)
 
     @property
@@ -81,14 +84,14 @@ class WorkerActiveShared:
 
     @staticmethod
     def create():
-        shm = SharedMemory(create=True, size=WorkerActiveShared.STRUCT_SIZE, track=False)
+        shm = SharedMemory(create=True, size=WorkerActiveShared.STRUCT_SIZE, **SHARED_MEMORY_KWARGS)
         inst = WorkerActiveShared(shm)
         inst.set(active=False)
         return inst
 
     @staticmethod
     def from_name(name):
-        shm = SharedMemory(name, track=False)
+        shm = SharedMemory(name, **SHARED_MEMORY_KWARGS)
         return WorkerActiveShared(shm)
 
     @property
