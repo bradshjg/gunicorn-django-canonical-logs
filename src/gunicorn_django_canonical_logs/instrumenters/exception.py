@@ -40,7 +40,8 @@ _orig_render_annotated = Node.render_annotated
 
 
 def _patched_render_annotated(self, context):
-    Context.set("template", f"{context.template.name}:{self.token.lineno}", namespace=NAMESPACE)
+    if context.template.name:  # HACK Django 4.2 with DEBUG=False appears to render debug info with no name on error?
+        Context.set("template", f"{context.template.name}:{self.token.lineno}", namespace=NAMESPACE)
 
     return _orig_render_annotated(self, context)
 
