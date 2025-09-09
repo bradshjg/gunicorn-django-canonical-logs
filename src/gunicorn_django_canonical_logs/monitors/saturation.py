@@ -6,7 +6,8 @@ import struct
 import sys
 import threading
 import time
-from multiprocessing.shared_memory import SharedMemory
+from multiprocessing import resource_tracker as _mprt
+from multiprocessing import shared_memory as _mpshm
 from typing import TYPE_CHECKING
 
 from gunicorn_django_canonical_logs.gunicorn_hooks.registry import register_hook
@@ -16,7 +17,46 @@ if TYPE_CHECKING:
     from gunicorn.workers.base import Worker
 
 
-SHARED_MEMORY_KWARGS = {"track": False} if sys.version_info >= (3, 13) else {}
+# Patch versions of Python < 3.13 to support avoiding the memory tracker
+if sys.version_info >= (3, 13):
+    SharedMemory = _mpshm.SharedMemory
+else:
+    class SharedMemory(_mpshm.SharedMemory):
+        __lock = threading.Lock()
+
+        def __init__(
+            self, name: str | None = None, create: bool = False,
+            size: int = 0, *, track: bool = True
+        ) -> None:
+            self._track = track
+
+            # if tracking, normal init will suffice
+            if track:
+                return super().__init__(name=name, create=create, size=size)
+
+            # lock so that other threads don't attempt to use the
+            # register function during this time
+            with self.__lock:
+                # temporarily disable registration during initialization
+                orig_register = _mprt.register
+                _mprt.register = self.__tmp_register
+
+                # initialize; ensure original register function is
+                # re-instated
+                try:
+                    super().__init__(name=name, create=create, size=size)
+                finally:
+                    _mprt.register = orig_register
+
+        @staticmethod
+        def __tmp_register(*args, **kwargs) -> None:
+            return
+
+        def unlink(self) -> None:
+            if _mpshm._USE_POSIX and self._name:
+                _mpshm._posixshmem.shm_unlink(self._name)
+                if self._track:
+                    _mprt.unregister(self._name, "shared_memory")
 
 
 @dataclasses.dataclass
@@ -40,14 +80,14 @@ class SaturationStatsShared:
 
     @staticmethod
     def create():
-        shm = SharedMemory(create=True, size=SaturationStatsShared.STRUCT_SIZE, **SHARED_MEMORY_KWARGS)
+        shm = SharedMemory(create=True, size=SaturationStatsShared.STRUCT_SIZE, track=False)
         inst = SaturationStatsShared(shm)
         inst.set(stats=SaturationStats())
         return inst
 
     @staticmethod
     def from_name(name):
-        shm = SharedMemory(name, **SHARED_MEMORY_KWARGS)
+        shm = SharedMemory(name, track=False)
         return SaturationStatsShared(shm)
 
     @property
@@ -84,14 +124,14 @@ class WorkerActiveShared:
 
     @staticmethod
     def create():
-        shm = SharedMemory(create=True, size=WorkerActiveShared.STRUCT_SIZE, **SHARED_MEMORY_KWARGS)
+        shm = SharedMemory(create=True, size=WorkerActiveShared.STRUCT_SIZE, track=False)
         inst = WorkerActiveShared(shm)
         inst.set(active=False)
         return inst
 
     @staticmethod
     def from_name(name):
-        shm = SharedMemory(name, **SHARED_MEMORY_KWARGS)
+        shm = SharedMemory(name, track=False)
         return WorkerActiveShared(shm)
 
     @property
