@@ -1,7 +1,7 @@
 from collections import defaultdict
-from enum import StrEnum
+from collections.abc import Callable
+from enum import Enum
 from functools import wraps
-from typing import Callable
 
 
 class InvalidHookError(Exception):
@@ -9,7 +9,7 @@ class InvalidHookError(Exception):
         super().__init__(f"{hook_name} is not a valid hook")
 
 
-class Hook(StrEnum):
+class Hook(Enum):
     ON_STARTING = "on_starting"
     ON_RELOAD = "on_reload"
     WHEN_READY = "when_ready"
@@ -26,6 +26,10 @@ class Hook(StrEnum):
     NWORKERS_CHANGED = "nworkers_changed"
     ON_EXIT = "on_exit"
     SSL_CONTEXT = "ssl_context"
+
+    @classmethod
+    def values(cls) -> set[str]:
+        return {member.value for member in cls}
 
 
 class HookRegistry:
@@ -48,7 +52,7 @@ hook_registry = HookRegistry()
 def register_hook(func=None, *, registry=hook_registry):
     def decorator(f):
         hook_name = f.__name__
-        if hook_name not in Hook:
+        if hook_name not in Hook.values():
             raise InvalidHookError(hook_name)
         registry.register(hook=hook_name, callback=f)
 

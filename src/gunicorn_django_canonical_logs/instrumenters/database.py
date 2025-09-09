@@ -28,13 +28,15 @@ class QueryCollector:
     @classmethod
     def get_data(cls):
         query_data = list(cls._queries.values())
+        query_time = sum([query["duration"] for query in query_data])
         dup_query_data = [data for data in query_data if data["count"] > 1]
+        dup_query_time = sum([query["duration"] for query in dup_query_data])
 
         return {
             "queries": sum([query["count"] for query in query_data]),
-            "time": f"{sum([query["duration"] for query in query_data]):.3f}",
+            "time": f"{query_time:.3f}",
             "dup_queries": sum([query["count"] for query in dup_query_data]),
-            "dup_time": f"{sum([query["duration"] for query in dup_query_data]):.3f}",
+            "dup_time": f"{dup_query_time:.3f}",
         }
 
     @classmethod

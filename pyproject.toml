@@ -7,7 +7,7 @@ name = "gunicorn-django-canonical-logs"
 dynamic = ["version"]
 description = "Canonical log lines for Django applications using Gunicorn sync workers"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = "MIT"
 keywords = []
 authors = [
@@ -16,11 +16,10 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -54,11 +53,20 @@ extra-dependencies = [
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/gunicorn_django_canonical_logs tests}"
 
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.10", "3.13"]
+django = ["4.2", "latest"]
+
 [tool.hatch.envs.hatch-test]
+extra-args = ["-vv"]
 features = [
   "test",
 ]
-extra-args = ["-vv"]
+
+[tool.hatch.envs.hatch-test.overrides]
+matrix.django.dependencies = [
+  { value = "django~=4.2", if = ["4.2"] }
+]
 
 [tool.hatch.envs.dev]
 path = ".venv/dev"

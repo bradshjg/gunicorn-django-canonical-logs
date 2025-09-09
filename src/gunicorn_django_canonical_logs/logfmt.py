@@ -79,5 +79,8 @@ class LogFmt:
                 tokens += [f"{k}_{dict_k}", dict_v]
 
         return " ".join(
-            ["=".join([cls.normalize_key(pair[0]), cls.format_value(pair[1])]) for pair in zip(*([iter(tokens)] * 2))]
+            [
+                "=".join([cls.normalize_key(pair[0]), cls.format_value(pair[1])])
+                for pair in zip(*([iter(tokens)] * 2), strict=False)
+            ]
         )
