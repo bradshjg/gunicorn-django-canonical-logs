@@ -12,7 +12,7 @@ import requests
 from tests.server.gunicorn_config import workers
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def server() -> Generator[tuple[IO[str], IO[str]], None, None]:
     fp_stdout = tempfile.TemporaryFile(mode="w+")
     fp_stderr = tempfile.TemporaryFile(mode="w+")
