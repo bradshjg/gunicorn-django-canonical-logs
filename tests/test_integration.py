@@ -4,12 +4,15 @@ import re
 import subprocess
 import tempfile
 import time
-from typing import IO, Generator
+from typing import IO, TYPE_CHECKING
 
 import pytest
 import requests
 
 from tests.server.gunicorn_config import workers
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 
 @pytest.fixture(scope="module")

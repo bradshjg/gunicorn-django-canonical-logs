@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import traceback
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from django.core.handlers import exception
 from django.template.base import Node
@@ -14,7 +14,7 @@ from gunicorn_django_canonical_logs.stack_context import get_stack_loc_context
 if TYPE_CHECKING:
     from types import TracebackType
 
-    SysExcInfo = tuple[Optional[type[BaseException]], Optional[BaseException], Optional[TracebackType]]
+    SysExcInfo = tuple[type[BaseException] | None, BaseException | None, TracebackType | None]
 
 NAMESPACE = "exc"
 

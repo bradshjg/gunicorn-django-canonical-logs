@@ -1,7 +1,7 @@
 from collections import defaultdict
+from collections.abc import Callable
 from enum import Enum
 from functools import wraps
-from typing import Callable
 
 
 class InvalidHookError(Exception):
