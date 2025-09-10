@@ -50,7 +50,7 @@ def template_callable_exception(request):
 
 
 def template_ok(request):
-    return render(request, "ok.html")
+    return render(request, "ok.html", {"msg": "template OK!"})
 
 
 class TemplateOKClassView(TemplateView):
