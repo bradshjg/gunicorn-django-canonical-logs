@@ -10,6 +10,7 @@ from gunicorn_django_canonical_logs.instrumenters.database import DatabaseInstru
 @pytest.fixture
 def instrumenter() -> Generator[DatabaseInstrumenter, None, None]:
     Context.reset()
+    QueryCollector.reset()
     instrumenter = DatabaseInstrumenter()
     instrumenter.setup()
     yield instrumenter
@@ -18,6 +19,7 @@ def instrumenter() -> Generator[DatabaseInstrumenter, None, None]:
 
 def test_queries(instrumenter, live_server):
     Context.reset()
+    QueryCollector.reset()
     url = live_server + "/db_queries/"
     resp = requests.get(url)
     assert resp.status_code == 200
@@ -34,6 +36,7 @@ def test_queries(instrumenter, live_server):
 
 def test_reset(instrumenter, live_server):
     Context.reset()
+    QueryCollector.reset()
     url = live_server + "/db_queries/"
     resp = requests.get(url)
     assert resp.status_code == 200
