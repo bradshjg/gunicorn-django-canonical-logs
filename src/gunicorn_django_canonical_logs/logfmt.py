@@ -1,6 +1,8 @@
 """Logfmt formatter, parts of the implementation from josheppinette/python-logfmte under MIT license
 
 See https://github.com/josheppinette/python-logfmter/blob/83199b506708d2180a437612c79ea5a5c03d70ce/LICENSE.txt
+
+Differs from the above in that all values are quoted and "-" is used to represent None
 """
 
 import re
@@ -17,32 +19,26 @@ class LogFmt:
         value = re.sub(r"\s+", " ", value).strip()
 
         needs_dquote_escaping = '"' in value
-        needs_quoting = " " in value or "=" in value or needs_dquote_escaping
-        needs_backslash_escaping = "\\" in value and needs_quoting
-
-        if needs_backslash_escaping:
-            value = value.replace("\\", "\\\\")
 
         if needs_dquote_escaping:
             value = value.replace('"', '\\"')
 
-        if needs_quoting:
-            value = f'"{value}"'
-
-        return value if value else ""
+        return f'"{value}"' if value else '"-"'
 
     @classmethod
     def format_value(cls, value) -> str:
         """
         Map the provided value to the proper logfmt formatted string.
         """
+        coerced_value = value
+
         if value is None:
-            return ""
+            coerced_value = ""
 
         if isinstance(value, bool):
-            return "true" if value else "false"
+            coerced_value = "true" if value else "false"
 
-        return cls.format_string(format(value))
+        return cls.format_string(format(coerced_value))
 
     @classmethod
     def normalize_key(cls, key: str) -> str:

@@ -56,14 +56,14 @@ def test_context_reset_between_requests(server) -> None:
     requests.get("http://localhost:8080/custom_event/")
 
     log = read_first_line(stdout)
-    assert "custom_event=1" in log
+    assert 'custom_event="1"' in log
 
     # context reset between requests
     clear_output(stdout)
     requests.get("http://localhost:8080/ok/")
 
     log = read_first_line(stdout)
-    assert "custom_event=1" not in log
+    assert 'custom_event="1"' not in log
 
 
 def test_access_event(server) -> None:
@@ -73,9 +73,9 @@ def test_access_event(server) -> None:
     requests.get("http://localhost:8080/ok/")
 
     log = read_first_line(stdout)
-    assert log.startswith("event_type=request")
-    assert "req_path=/ok/" in log
-    assert "resp_status=200" in log
+    assert log.startswith('event_type="request"')
+    assert 'req_path="/ok/"' in log
+    assert 'resp_status="200"' in log
 
 
 def test_saturation_event(server) -> None:
@@ -85,7 +85,7 @@ def test_saturation_event(server) -> None:
     requests.get("http://localhost:8080/ok/")
 
     log = read_first_line(stdout)
-    assert f"w_count={workers}" in log
+    assert f'w_count="{workers}"' in log
 
 
 def test_exception_event(server) -> None:
@@ -95,11 +95,11 @@ def test_exception_event(server) -> None:
     requests.get("http://localhost:8080/view_exception/")
 
     log = read_first_line(stdout)
-    assert "resp_status=500" in log
-    assert "exc_type=MyError" in log
+    assert 'resp_status="500"' in log
+    assert 'exc_type="MyError"' in log
     assert 'exc_msg="Oh noes!"' in log
-    assert "exc_loc=app.py" in log
-    assert "exc_cause_loc=app.py" in log
+    assert re.search(r'exc_loc="app.py:\d+:view_exception"', log)
+    assert re.search(r'exc_cause_loc="app.py:\d+:func_that_throws"', log)
 
 
 def test_template_exception_event(server) -> None:
@@ -109,12 +109,12 @@ def test_template_exception_event(server) -> None:
     requests.get("http://localhost:8080/template_callable_exception/")
 
     log = read_first_line(stdout)
-    assert "resp_status=500" in log
-    assert "exc_type=MyError" in log
+    assert 'resp_status="500"' in log
+    assert 'exc_type="MyError"' in log
     assert 'exc_msg="Oh noes!"' in log
-    assert "exc_template=callable_exception.html" in log
-    assert "exc_loc=app.py" in log
-    assert "exc_cause_loc=app.py" in log
+    assert re.search(r'exc_template="callable_exception.html:\d+"', log)
+    assert re.search(r'exc_loc="app.py:\d+:template_callable_exception"', log)
+    assert re.search(r'exc_cause_loc="app.py:\d+:func_that_throws"', log)
 
 
 @pytest.mark.django_db
@@ -125,8 +125,8 @@ def test_db_event(server) -> None:
     requests.get("http://localhost:8080/db_queries/")
 
     log = read_first_line(stdout)
-    assert "resp_status=200" in log
-    assert "db_queries=3" in log
+    assert 'resp_status="200"' in log
+    assert 'db_queries="3"' in log
 
 
 def test_custom_event(server) -> None:
@@ -136,7 +136,7 @@ def test_custom_event(server) -> None:
     requests.get("http://localhost:8080/custom_event/")
 
     log = read_first_line(stdout)
-    assert "custom_event=1" in log
+    assert 'custom_event="1"' in log
 
 
 def test_app_instrumenter(server) -> None:
@@ -146,7 +146,7 @@ def test_app_instrumenter(server) -> None:
     requests.get("http://localhost:8080/custom_event/")
 
     log = read_first_line(stdout)
-    assert "app_key=val" in log
+    assert 'app_key="val"' in log
 
 
 def test_timeout_event(server) -> None:
@@ -156,9 +156,9 @@ def test_timeout_event(server) -> None:
     requests.get("http://localhost:8080/sleep/?duration=10")
 
     log = read_first_line(stdout)
-    assert log.startswith("event_type=timeout")
-    assert re.search(r"timeout_loc=app\.py:\d+:sleep", log)
-    assert re.search(r"timeout_cause_loc=app\.py:\d+:simulate_blocking", log)
+    assert log.startswith('event_type="timeout"')
+    assert re.search(r'timeout_loc="app\.py:\d+:sleep"', log)
+    assert re.search(r'timeout_cause_loc="app\.py:\d+:simulate_blocking"', log)
 
 
 def test_sigkill_timeout_event(server) -> None:
@@ -169,6 +169,6 @@ def test_sigkill_timeout_event(server) -> None:
         requests.get("http://localhost:8080/rude_sleep/?duration=10")
 
     log = read_first_line(stdout)
-    assert log.startswith("event_type=timeout")
-    assert re.search(r"timeout_loc=app\.py:\d+:rude_sleep", log)
-    assert re.search(r"timeout_cause_loc=app\.py:\d+:simulate_blocking_and_ignoring_signals", log)
+    assert log.startswith('event_type="timeout"')
+    assert re.search(r'timeout_loc="app\.py:\d+:rude_sleep"', log)
+    assert re.search(r'timeout_cause_loc="app\.py:\d+:simulate_blocking_and_ignoring_signals"', log)
