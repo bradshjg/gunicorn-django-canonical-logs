@@ -9,7 +9,7 @@ from typing import IO, TYPE_CHECKING
 import pytest
 import requests
 
-from tests.server.gunicorn_config import workers
+from server.gunicorn_config import workers
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -95,7 +95,25 @@ def test_exception_event(server) -> None:
 
     log = read_first_line(stdout)
     assert "resp_status=500" in log
-    assert 'exc_type=MyError exc_msg="Oh noes!"' in log
+    assert "exc_type=MyError" in log
+    assert 'exc_msg="Oh noes!"' in log
+    assert "exc_loc=app.py" in log
+    assert "exc_cause_loc=app.py" in log
+
+
+def test_template_exception_event(server) -> None:
+    stdout, _ = server
+    clear_output(stdout)
+
+    requests.get("http://localhost:8080/template_callable_exception/")
+
+    log = read_first_line(stdout)
+    assert "resp_status=500" in log
+    assert "exc_type=MyError" in log
+    assert 'exc_msg="Oh noes!"' in log
+    assert "exc_template=callable_exception.html" in log
+    assert "exc_loc=app.py" in log
+    assert "exc_cause_loc=app.py" in log
 
 
 @pytest.mark.django_db
