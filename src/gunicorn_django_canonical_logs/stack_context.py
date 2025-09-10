@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 def _filter_stack_summary(
     stack_summary: traceback.StackSummary,
 ) -> tuple[list[traceback.FrameSummary], list[traceback.FrameSummary]]:
-    library_paths = [*sysconfig.get_paths().values(), str(pathlib.Path(__file__).parent)]
+    library_paths = sysconfig.get_paths().values()
     library_frames, app_frames = [], []
     for frame_summary in stack_summary:
         if any(frame_summary.filename.startswith((path, os.path.realpath(path))) for path in library_paths):
