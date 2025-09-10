@@ -21,18 +21,23 @@ if TYPE_CHECKING:
 if sys.version_info >= (3, 13):
     SharedMemory = _mpshm.SharedMemory
 else:
+
     class SharedMemory(_mpshm.SharedMemory):
         __lock = threading.Lock()
 
         def __init__(
-            self, name: str | None = None, create: bool = False,
-            size: int = 0, *, track: bool = True
+            self,
+            name: str | None = None,
+            create: bool = False,  # noqa: FBT001 FBT002
+            size: int = 0,
+            *,
+            track: bool = True,
         ) -> None:
             self._track = track
 
             # if tracking, normal init will suffice
             if track:
-                return super().__init__(name=name, create=create, size=size)
+                return super().__init__(name=name, create=create, size=size)  # noqa: PLE0101
 
             # lock so that other threads don't attempt to use the
             # register function during this time
@@ -49,12 +54,12 @@ else:
                     _mprt.register = orig_register
 
         @staticmethod
-        def __tmp_register(*args, **kwargs) -> None:
+        def __tmp_register(*args, **kwargs) -> None:  # noqa: ARG004
             return
 
         def unlink(self) -> None:
-            if _mpshm._USE_POSIX and self._name:
-                _mpshm._posixshmem.shm_unlink(self._name)
+            if _mpshm._USE_POSIX and self._name:  # noqa: SLF001
+                _mpshm._posixshmem.shm_unlink(self._name)  # noqa: SLF001
                 if self._track:
                     _mprt.unregister(self._name, "shared_memory")
 
@@ -168,7 +173,7 @@ def get_backlog(arbiter) -> int | None:
         tcp_info_struct = listener.sock.getsockopt(socket.IPPROTO_TCP, socket.TCP_INFO, tcp_info_size)
         try:
             total += struct.unpack(tcp_info_fmt, tcp_info_struct)[tcpi_unacked_index]
-        except struct.error: # struct is private, do our best but settle for not updating the data
+        except struct.error:  # struct is private, do our best but settle for not updating the data
             return
 
     return total

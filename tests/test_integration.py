@@ -1,3 +1,4 @@
+# noqa: INP001 tests is intentional not a package to keep in outside package scope
 from __future__ import annotations
 
 import re
@@ -8,7 +9,6 @@ from typing import IO, TYPE_CHECKING
 
 import pytest
 import requests
-
 from server.gunicorn_config import workers
 
 if TYPE_CHECKING:
