@@ -47,8 +47,8 @@ pip install gunicorn-django-canonical-logs
 Add the following to your Gunicorn configuration file:
 
 ```python
-from gunicorn_django_wide_events.glogging import Logger
-from gunicorn_django_wide_events.gunicorn_hooks import *  # register Gunicorn hooks and instrumenters
+from gunicorn_django_canonical_logs.glogging import Logger
+from gunicorn_django_canonical_logs.gunicorn_hooks import *  # register Gunicorn hooks and instrumenters
 
 accesslog = "-"
 logger_class = Logger
