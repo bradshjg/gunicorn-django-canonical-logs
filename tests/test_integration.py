@@ -43,6 +43,7 @@ def clear_output(fp: IO[str]) -> None:
 
 
 def read_first_line(fp: IO[str]) -> str:
+    time.sleep(1)
     fp.flush()
     fp.seek(0)
     return fp.readline()
