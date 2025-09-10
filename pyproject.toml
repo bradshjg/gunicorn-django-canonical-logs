@@ -62,6 +62,7 @@ extra-args = ["-vv"]
 features = [
   "test",
 ]
+dev-mode = false
 
 [tool.hatch.envs.hatch-test.overrides]
 matrix.django.dependencies = [
