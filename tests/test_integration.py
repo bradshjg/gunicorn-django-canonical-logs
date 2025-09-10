@@ -103,7 +103,6 @@ def test_exception_event(server) -> None:
 
 def test_template_exception_event(server) -> None:
     stdout, _ = server
-    time.sleep(1)
     clear_output(stdout)
 
     requests.get("http://localhost:8080/template_callable_exception/")
