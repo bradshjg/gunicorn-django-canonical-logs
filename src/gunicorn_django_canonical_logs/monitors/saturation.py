@@ -153,7 +153,7 @@ class WorkerActiveShared:
         self.shm.unlink()
 
 
-def get_backlog(arbiter) -> int:
+def get_backlog(arbiter) -> int | None:
     """Get the number of connections waiting to be accepted by a server"""
     if sys.platform != "linux":
         return 0
@@ -166,7 +166,10 @@ def get_backlog(arbiter) -> int:
         tcp_info_size = 28
         tcpi_unacked_index = 12
         tcp_info_struct = listener.sock.getsockopt(socket.IPPROTO_TCP, socket.TCP_INFO, tcp_info_size)
-        total += struct.unpack(tcp_info_fmt, tcp_info_struct)[tcpi_unacked_index]
+        try:
+            total += struct.unpack(tcp_info_fmt, tcp_info_struct)[tcpi_unacked_index]
+        except struct.error: # struct is private, do our best but settle for not updating the data
+            return
 
     return total
 
@@ -207,7 +210,8 @@ def monitor_saturation(arbiter: Arbiter):
 
         backlog = get_backlog(arbiter)
 
-        arbiter.saturation_stats.set(stats=SaturationStats(w_count, w_active, backlog))
+        if backlog is not None:
+            arbiter.saturation_stats.set(stats=SaturationStats(w_count, w_active, backlog))
 
         time.sleep(update_interval_seconds)
 
