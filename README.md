@@ -17,12 +17,15 @@
   * [Default intstrumenters](#default-instrumenters)
     - [Request intstrumenter](#request-instrumenter)
     - [Exception intstrumenter](#exception-instrumenter)
-    - [database intstrument](#database-instrumenter)
-    - [saturation intstrument](#saturation-instrumenter)
+    - [Database intstrument](#database-instrumenter)
+    - [Saturation intstrument](#saturation-instrumenter)
   * [Default monitors](#default-monitors)
     - [Saturation monitor](#saturation-monitor)
     - [Timeout monitor](#timeout-monitor)
   * [Extending gunicorn-django-canonical-logs](#extending-gunicorn-django-canonical-logs)
+    - [Application-specific context](#application-specific-context)
+    - [Application-specific timing](#application-specific-timing)
+    - [Custom instrumenters](#custom-instrumenters)
 - [License](#license)
 
 
@@ -151,10 +154,24 @@ from anywhere in your application, use
 ```python
 from gunicorn_django_canonical_logs import Context
 
-Context.set("key", "val")
+Context.set("custom", "my_value")
 ```
 
-This will add `app_key=val` to the log for the current request, and context will be automatically cleared for the next request.
+This would add `app_custom="my_value"` to the log for the current request; context is cleared between requests.
+
+### Application-specific timing
+
+from anywhere in your application, use
+
+```python
+from gunicorn_django_canonical_logs import Context
+
+Context.time("custom"):
+    do_thing_that_takes_time()
+```
+
+This would add `app_custom_time="{wall time in seconds}"` to the log for the current request based on the execution
+time of `do_thing_that_takes_time()`; multiple timings using the same key are summed.
 
 ### Custom instrumenters
 
