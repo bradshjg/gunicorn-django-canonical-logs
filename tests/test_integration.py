@@ -136,7 +136,17 @@ def test_custom_event(server) -> None:
     requests.get("http://localhost:8080/custom_event/")
 
     log = read_first_line(stdout)
-    assert 'custom_event="1"' in log
+    assert 'app_custom_event="1"' in log
+
+
+def test_custom_timing(server) -> None:
+    stdout, _ = server
+    clear_output(stdout)
+
+    requests.get("http://localhost:8080/custom_timing/")
+
+    log = read_first_line(stdout)
+    assert re.search(r'app_custom_time="0.2\d{2}"', log)
 
 
 def test_app_instrumenter(server) -> None:

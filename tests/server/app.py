@@ -62,6 +62,13 @@ def custom_event(_):
     return HttpResponse("Added custom event!")
 
 
+def custom_timing(_):
+    with Context.time("custom"):
+        time.sleep(0.2)
+
+    return HttpResponse("OK!")
+
+
 def sleep(request):
     duration = float(request.GET["duration"])
     simulate_blocking(duration)
@@ -104,6 +111,7 @@ urlpatterns = [
     path("template_callable_exception/", template_callable_exception),
     path("named_ok/", ok, name="named_ok_view"),
     path("custom_event/", custom_event),
+    path("custom_timing/", custom_timing),
     path("sleep/", sleep),
     path("rude_sleep/", rude_sleep),
     path("db_queries/", db_queries),
