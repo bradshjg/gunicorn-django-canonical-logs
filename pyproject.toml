@@ -47,11 +47,15 @@ test = [
 path = "src/gunicorn_django_canonical_logs/__about__.py"
 
 [tool.hatch.envs.types]
+features = [
+  "test",
+]
 extra-dependencies = [
   "mypy>=1.0.0",
 ]
+
 [tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/gunicorn_django_canonical_logs tests}"
+check = "mypy --install-types --non-interactive --ignore-missing-imports {args:src/gunicorn_django_canonical_logs tests}"
 
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.9", "3.13"]

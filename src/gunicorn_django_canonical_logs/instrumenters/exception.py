@@ -23,15 +23,16 @@ _orig_handle_uncaught_exception = exception.handle_uncaught_exception
 
 def _patched_handle_uncaught_exception(request, resolver, exc_info: SysExcInfo):
     exc_type, exc_value, tb = exc_info
-    exc_context = {
-        "type": exc_type.__name__,
-        "msg": str(exc_value),
-    }
+    if exc_type and exc_value and tb:
+        exc_context = {
+            "type": exc_type.__name__,
+            "msg": str(exc_value),
+        }
 
-    loc_context = get_stack_loc_context(traceback.extract_tb(tb))
-    exc_context.update(loc_context)
+        loc_context = get_stack_loc_context(traceback.extract_tb(tb))
+        exc_context.update(loc_context)
 
-    Context.update(namespace=NAMESPACE, context=exc_context)
+        Context.update(namespace=NAMESPACE, context=exc_context)
 
     return _orig_handle_uncaught_exception(request, resolver, exc_info)
 

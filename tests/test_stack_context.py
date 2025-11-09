@@ -1,3 +1,4 @@
+# noqa: INP001 intentionally not a package, part of pytest tests
 import shutil
 import traceback
 
