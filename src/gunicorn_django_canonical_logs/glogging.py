@@ -1,3 +1,5 @@
+import os
+
 from gunicorn import glogging
 from gunicorn.http.message import Request
 
@@ -11,19 +13,23 @@ class Logger(glogging.Logger):
     EVENT_NAMESPACE = "event"
 
     def access(self, _resp, req: Request, *_args, **_kwargs):
+        # See https://github.com/bradshjg/gunicorn-django-canonical-logs/issues/7
+        # The goal is to allow a smooth transition when existing logs are used in downstream systems
+        if os.environ.get("GUNICORN_DISABLE_EXISTING_LOGGERS", True) == "0":
+            super().access(_resp, req, *_args, **_kwargs)
+
         # gunicorn calls this on abort, but the data is weird (e.g. request timing is abort handler timing?); silence it
         if req.timed_out:
             return
 
-        Context.update(context={self.EVENT_TYPE: "request"}, namespace=self.EVENT_NAMESPACE, beginning=True)
-
-        for instrumenter in instrumenter_registry.values():
-            instrumenter.call()
-
-        self.access_log.info(LogFmt.format(Context))
+        self._emit_log("request")
 
     def timeout(self):
-        Context.update(context={self.EVENT_TYPE: "timeout"}, namespace=self.EVENT_NAMESPACE, beginning=True)
+        # FIXME (somdeay?) timeouts that happen before the Django
+        self._emit_log("timeout")
+
+    def _emit_log(self, event_type: str) -> None:
+        Context.update(context={self.EVENT_TYPE: event_type}, namespace=self.EVENT_NAMESPACE, beginning=True)
 
         for instrumenter in instrumenter_registry.values():
             instrumenter.call()

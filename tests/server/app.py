@@ -1,7 +1,10 @@
 import signal
 import time
+from pathlib import Path
 
 import requests
+from whitenoise import WhiteNoise
+
 from django.core.management import execute_from_command_line
 from django.core.wsgi import get_wsgi_application
 from django.http import HttpResponse
@@ -118,6 +121,7 @@ urlpatterns = [
 ]
 
 application = get_wsgi_application()
+application = WhiteNoise(application, root=str(Path(__file__).resolve().parent / "static"), prefix="static/")
 
 if __name__ == "__main__":
     execute_from_command_line()
