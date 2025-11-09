@@ -77,6 +77,6 @@ class LogFmt:
         return " ".join(
             [
                 "=".join([cls.normalize_key(pair[0]), cls.format_value(pair[1])])
-                for pair in zip(*([iter(tokens)] * 2), strict=False)
+                for pair in zip(*([iter(tokens)] * 2))
             ]
         )
