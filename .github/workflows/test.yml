@@ -21,7 +21,7 @@ jobs:
         run: pipx install hatch
 
       - name: Lint
-        run: hatch fmt
+        run: hatch fmt --check
 
       - name: Check types
         run: hatch run types:check

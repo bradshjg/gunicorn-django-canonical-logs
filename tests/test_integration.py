@@ -1,4 +1,4 @@
-# tests is intentional not a package to keep in outside package scope
+# noqa: INP001 intentionally not a package, part of pytest tests
 from __future__ import annotations
 
 import re
