@@ -15,15 +15,13 @@ class Logger(glogging.Logger):
         if req.timed_out:
             return
 
-        Context.update(context={self.EVENT_TYPE: "request"}, namespace=self.EVENT_NAMESPACE, beginning=True)
-
-        for instrumenter in instrumenter_registry.values():
-            instrumenter.call()
-
-        self.access_log.info(LogFmt.format(Context))
+        self._emit_log("request")
 
     def timeout(self):
-        Context.update(context={self.EVENT_TYPE: "timeout"}, namespace=self.EVENT_NAMESPACE, beginning=True)
+        self._emit_log("timeout")
+
+    def _emit_log(self, event_type: str) -> None:
+        Context.update(context={self.EVENT_TYPE: event_type}, namespace=self.EVENT_NAMESPACE, beginning=True)
 
         for instrumenter in instrumenter_registry.values():
             instrumenter.call()

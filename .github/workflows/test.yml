@@ -20,5 +20,11 @@ jobs:
       - name: Install hatch
         run: pipx install hatch
 
-      - name: Run tests
+      - name: Lint
+        run: hatch fmt
+
+      - name: Check types
+        run: hatch run types:check
+
+      - name: Test
         run: hatch test -ar
