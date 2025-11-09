@@ -3,14 +3,13 @@ import time
 from pathlib import Path
 
 import requests
-from whitenoise import WhiteNoise
-
 from django.core.management import execute_from_command_line
 from django.core.wsgi import get_wsgi_application
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import path
 from django.views.generic import TemplateView
+from whitenoise import WhiteNoise
 
 from gunicorn_django_canonical_logs import Context, register_instrumenter
 

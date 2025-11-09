@@ -39,11 +39,11 @@ def _django_middleware(get_response):
 
 @register_instrumenter
 class RequestInstrumenter(BaseInstrumenter):
-    def __init__(self):
+    def __init__(self) -> None:
         self.middleware_setting = "MIDDLEWARE"
         self.request_middleware_string_path = f"{self.__module__}.{_django_middleware.__qualname__}"
 
-    def setup(self):
+    def setup(self) -> None:
         settings_middleware = getattr(settings, self.middleware_setting)
 
         settings_middleware = list(settings_middleware)  # ensure access to insert method
@@ -51,6 +51,6 @@ class RequestInstrumenter(BaseInstrumenter):
 
         setattr(settings, self.middleware_setting, settings_middleware)
 
-    def teardown(self):
+    def teardown(self) -> None:
         settings_middleware: list = getattr(settings, self.middleware_setting)
         settings_middleware.remove(self.request_middleware_string_path)

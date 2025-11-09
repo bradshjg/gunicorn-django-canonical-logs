@@ -24,7 +24,7 @@ def _filter_stack_summary(
 
 def _format_frame_summary(frame_summary: traceback.FrameSummary | None) -> str | None:
     if not frame_summary:
-        return
+        return None
     # use sys.path to find the shortest possible import (i.e. strip base project path)
     python_paths = sorted(sys.path, key=len, reverse=True)
     fname = frame_summary.filename

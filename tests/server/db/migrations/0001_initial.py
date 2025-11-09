@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     initial = True
 
-    dependencies = []  # noqa: RUF012
+    dependencies = []  # type: ignore # noqa: RUF012
 
     operations = [  # noqa: RUF012
         migrations.CreateModel(

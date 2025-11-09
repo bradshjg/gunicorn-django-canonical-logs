@@ -8,7 +8,7 @@ import threading
 import time
 from multiprocessing import resource_tracker as _mprt
 from multiprocessing import shared_memory as _mpshm
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from gunicorn_django_canonical_logs.gunicorn_hooks.registry import register_hook
 
@@ -80,7 +80,7 @@ class SaturationStatsShared:
     STRUCT_FMT = 3 * "H"  # 3*uint16 (w_count, w_active, backlog)
     STRUCT_SIZE = struct.calcsize(STRUCT_FMT)
 
-    def __init__(self, shm):
+    def __init__(self, shm) -> None:
         self.shm: SharedMemory = shm
 
     @staticmethod
@@ -124,7 +124,7 @@ class WorkerActiveShared:
     STRUCT_FMT = "?"  # boolean
     STRUCT_SIZE = struct.calcsize(STRUCT_FMT)
 
-    def __init__(self, shm):
+    def __init__(self, shm) -> None:
         self.shm: SharedMemory = shm
 
     @staticmethod
@@ -174,7 +174,7 @@ def get_backlog(arbiter) -> int | None:
         try:
             total += struct.unpack(tcp_info_fmt, tcp_info_struct)[tcpi_unacked_index]
         except struct.error:  # struct is private, do our best but settle for not updating the data
-            return
+            return None
 
     return total
 
@@ -222,10 +222,10 @@ def monitor_saturation(arbiter: Arbiter):
 
 
 class CurrentSaturationStats:
-    stats: SaturationStats | None = None
+    stats: dict[str, Any] | None = None
 
     @classmethod
-    def get(cls) -> dict[str, str]:
+    def get(cls) -> dict[str, Any]:
         if cls.stats is None:
             return dataclasses.asdict(SaturationStats())
         return cls.stats

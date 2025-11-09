@@ -33,8 +33,8 @@ class Hook(Enum):
 
 
 class HookRegistry:
-    def __init__(self):
-        self._registered_hooks: dict[Hook, Callable] = defaultdict(set)
+    def __init__(self) -> None:
+        self._registered_hooks: dict[Hook, set] = defaultdict(set)
 
     def __getitem__(self, key: Hook):
         return self._registered_hooks[key]

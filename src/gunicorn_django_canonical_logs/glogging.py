@@ -25,7 +25,6 @@ class Logger(glogging.Logger):
         self._emit_log("request")
 
     def timeout(self):
-        # FIXME (somdeay?) timeouts that happen before the Django
         self._emit_log("timeout")
 
     def _emit_log(self, event_type: str) -> None:
