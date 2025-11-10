@@ -27,7 +27,7 @@ def test_queries(instrumenter, live_server):
 
     db_namespace = "db"
 
-    instrumenter.call(req=None, resp=None, environ=None)
+    instrumenter.call(None, None, None)
 
     assert Context.get("queries", namespace=db_namespace) == 3
     assert float(Context.get("time", namespace=db_namespace)) >= 0
@@ -44,14 +44,14 @@ def test_reset(instrumenter, live_server):
 
     db_namespace = "db"
 
-    instrumenter.call(req=None, resp=None, environ=None)
+    instrumenter.call(None, None, None)
 
     assert Context.get("queries", namespace=db_namespace) > 0
     assert float(Context.get("time", namespace=db_namespace)) >= 0
     assert Context.get("dup_queries", namespace=db_namespace) > 0
     assert float(Context.get("dup_time", namespace=db_namespace)) >= 0
 
-    instrumenter.call(req=None, resp=None, environ=None)
+    instrumenter.call(None, None, None)
 
     assert Context.get("queries", namespace=db_namespace) == 0
     assert float(Context.get("time", namespace=db_namespace)) == 0

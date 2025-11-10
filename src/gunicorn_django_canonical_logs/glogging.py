@@ -33,6 +33,6 @@ class Logger(glogging.Logger):
         Context.update(context={self.EVENT_TYPE: event_type}, namespace=self.EVENT_NAMESPACE, beginning=True)
 
         for instrumenter in instrumenter_registry.values():
-            instrumenter.call(req=req, resp=resp, environ=environ)
+            instrumenter.call(req, resp, environ)
 
         self.access_log.info(LogFmt.format(Context))
