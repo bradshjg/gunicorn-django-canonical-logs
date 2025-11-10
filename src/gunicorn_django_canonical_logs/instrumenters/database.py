@@ -3,13 +3,13 @@ from __future__ import annotations
 import time
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import ClassVar
+from typing import ClassVar, override
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.utils import CursorWrapper
 
 from gunicorn_django_canonical_logs.event_context import Context
-from gunicorn_django_canonical_logs.instrumenters.base import BaseInstrumenter
+from gunicorn_django_canonical_logs.instrumenters.protocol import InstrumenterProtocol
 from gunicorn_django_canonical_logs.instrumenters.registry import register_instrumenter
 
 
@@ -61,19 +61,22 @@ class InstrumenterCursorWrapper(CursorWrapper):
 
 
 @register_instrumenter
-class DatabaseInstrumenter(BaseInstrumenter):
+class DatabaseInstrumenter(InstrumenterProtocol):
     NAMESPACE = "db"
 
     def __init__(self):
         self._orig_make_cursor = BaseDatabaseWrapper.make_cursor
 
+    @override
     def setup(self):
         BaseDatabaseWrapper.make_cursor = self._patched_make_cursor
 
+    @override
     def teardown(self):
         BaseDatabaseWrapper.make_cursor = self._orig_make_cursor
 
-    def call(self):
+    @override
+    def call(self, *, req, resp, environ):
         Context.update(namespace=self.NAMESPACE, context=QueryCollector.get_data())
         QueryCollector.reset()
 

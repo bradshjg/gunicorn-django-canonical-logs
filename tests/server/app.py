@@ -1,6 +1,7 @@
 import signal
 import time
 from pathlib import Path
+from typing import override
 
 import requests
 from django.core.management import execute_from_command_line
@@ -12,11 +13,13 @@ from django.views.generic import TemplateView
 from whitenoise import WhiteNoise
 
 from gunicorn_django_canonical_logs import Context, register_instrumenter
+from gunicorn_django_canonical_logs.instrumenters.protocol import InstrumenterProtocol
 
 
 @register_instrumenter
-class MyInstrumenter:
-    def call(self):
+class MyInstrumenter(InstrumenterProtocol):
+    @override
+    def call(self, *, req, resp, environ):
         Context.set("key", "val")
 
 

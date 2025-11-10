@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import traceback
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from django.core.handlers import exception
 from django.template.base import Node
 
 from gunicorn_django_canonical_logs.event_context import Context
-from gunicorn_django_canonical_logs.instrumenters.base import BaseInstrumenter
+from gunicorn_django_canonical_logs.instrumenters.protocol import InstrumenterProtocol
 from gunicorn_django_canonical_logs.instrumenters.registry import register_instrumenter
 from gunicorn_django_canonical_logs.stack_context import get_stack_loc_context
 
@@ -50,11 +50,13 @@ def _patched_render_annotated(self, context):
 
 
 @register_instrumenter
-class ExceptionInstrumenter(BaseInstrumenter):
+class ExceptionInstrumenter(InstrumenterProtocol):
+    @override
     def setup(self):
         exception.handle_uncaught_exception = _patched_handle_uncaught_exception
         Node.render_annotated = _patched_render_annotated
 
+    @override
     def teardown(self):
         exception.handle_uncaught_exception = _orig_handle_uncaught_exception
         Node.render_annotated = _orig_render_annotated

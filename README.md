@@ -183,7 +183,7 @@ class MyInstrumenter:
     def setup(self):
         pass  # called once after forking a Gunicorn worker
 
-    def call(self):
+    def call(self, *, req, resp, environ):
         pass  # called every time an event is emitted
 ```
 

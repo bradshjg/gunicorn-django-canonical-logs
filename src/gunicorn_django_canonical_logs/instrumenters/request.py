@@ -1,9 +1,10 @@
 import time
+from typing import override
 
 from django.conf import settings
 
 from gunicorn_django_canonical_logs.event_context import Context
-from gunicorn_django_canonical_logs.instrumenters.base import BaseInstrumenter
+from gunicorn_django_canonical_logs.instrumenters.protocol import InstrumenterProtocol
 from gunicorn_django_canonical_logs.instrumenters.registry import register_instrumenter
 
 
@@ -38,11 +39,12 @@ def _django_middleware(get_response):
 
 
 @register_instrumenter
-class RequestInstrumenter(BaseInstrumenter):
+class RequestInstrumenter(InstrumenterProtocol):
     def __init__(self) -> None:
         self.middleware_setting = "MIDDLEWARE"
         self.request_middleware_string_path = f"{self.__module__}.{_django_middleware.__qualname__}"
 
+    @override
     def setup(self) -> None:
         settings_middleware = getattr(settings, self.middleware_setting)
 
@@ -51,6 +53,7 @@ class RequestInstrumenter(BaseInstrumenter):
 
         setattr(settings, self.middleware_setting, settings_middleware)
 
+    @override
     def teardown(self) -> None:
         settings_middleware: list = getattr(settings, self.middleware_setting)
         settings_middleware.remove(self.request_middleware_string_path)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from gunicorn_django_canonical_logs.event_context import Context
 from gunicorn_django_canonical_logs.gunicorn_hooks import register_hook
 from gunicorn_django_canonical_logs.instrumenters import (  # noqa: F401 registers instrumenters
