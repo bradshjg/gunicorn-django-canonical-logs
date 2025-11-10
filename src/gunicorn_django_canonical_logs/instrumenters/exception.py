@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import traceback
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING
 
 from django.core.handlers import exception
 from django.template.base import Node
@@ -51,12 +51,10 @@ def _patched_render_annotated(self, context):
 
 @register_instrumenter
 class ExceptionInstrumenter(InstrumenterProtocol):
-    @override
     def setup(self):
         exception.handle_uncaught_exception = _patched_handle_uncaught_exception
         Node.render_annotated = _patched_render_annotated
 
-    @override
     def teardown(self):
         exception.handle_uncaught_exception = _orig_handle_uncaught_exception
         Node.render_annotated = _orig_render_annotated

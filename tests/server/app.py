@@ -1,7 +1,6 @@
 import signal
 import time
 from pathlib import Path
-from typing import override
 
 import requests
 from django.core.management import execute_from_command_line
@@ -18,8 +17,7 @@ from gunicorn_django_canonical_logs.instrumenters.protocol import InstrumenterPr
 
 @register_instrumenter
 class MyInstrumenter(InstrumenterProtocol):
-    @override
-    def call(self, *, req, resp, environ):
+    def call(self, _req, _resp, _environ):
         Context.set("key", "val")
 
 

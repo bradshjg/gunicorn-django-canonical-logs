@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import ClassVar, override
+from typing import ClassVar
 
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.utils import CursorWrapper
@@ -67,16 +67,13 @@ class DatabaseInstrumenter(InstrumenterProtocol):
     def __init__(self):
         self._orig_make_cursor = BaseDatabaseWrapper.make_cursor
 
-    @override
     def setup(self):
         BaseDatabaseWrapper.make_cursor = self._patched_make_cursor
 
-    @override
     def teardown(self):
         BaseDatabaseWrapper.make_cursor = self._orig_make_cursor
 
-    @override
-    def call(self, *, req, resp, environ):
+    def call(self, _req, _resp, _environ):
         Context.update(namespace=self.NAMESPACE, context=QueryCollector.get_data())
         QueryCollector.reset()
 

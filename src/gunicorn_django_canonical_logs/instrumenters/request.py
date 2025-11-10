@@ -1,5 +1,4 @@
 import time
-from typing import override
 
 from django.conf import settings
 
@@ -44,7 +43,6 @@ class RequestInstrumenter(InstrumenterProtocol):
         self.middleware_setting = "MIDDLEWARE"
         self.request_middleware_string_path = f"{self.__module__}.{_django_middleware.__qualname__}"
 
-    @override
     def setup(self) -> None:
         settings_middleware = getattr(settings, self.middleware_setting)
 
@@ -53,7 +51,6 @@ class RequestInstrumenter(InstrumenterProtocol):
 
         setattr(settings, self.middleware_setting, settings_middleware)
 
-    @override
     def teardown(self) -> None:
         settings_middleware: list = getattr(settings, self.middleware_setting)
         settings_middleware.remove(self.request_middleware_string_path)
