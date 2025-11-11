@@ -7,14 +7,14 @@ import shlex
 import subprocess
 import tempfile
 import time
-from typing import IO, Sequence, TYPE_CHECKING
+from typing import IO, TYPE_CHECKING
 
 import pytest
 import requests
 from server.gunicorn_config import workers
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Sequence
 
 
 @pytest.fixture(scope="module")
@@ -74,7 +74,7 @@ def read_log_lines(fp: IO[str]) -> list[str]:
     return fp.readlines()
 
 
-def get_parsed_canonical_logs(fp: IO[str], event_types: Sequence[str]=("request",)) -> list[dict[str, str]]:
+def get_parsed_canonical_logs(fp: IO[str], event_types: Sequence[str] = ("request",)) -> list[dict[str, str]]:
     """Returns a list of dictionaries of the key-value pairs in canonical logs of the given event type.
 
     NB this is unable to parse lines a "real" logfmt parser would, e.g. it breaks on values with "=" in them.
@@ -287,6 +287,7 @@ def test_preserve_existing_request_logger(server, server_with_existing_logger_pr
     assert len(server_with_existing_logger_preserved_log_lines) == 2
     assert server_with_existing_logger_preserved_log_lines[0].startswith("127.0.0.1")
     assert server_with_existing_logger_preserved_log_lines[1].startswith('event_type="request"')
+
 
 def test_partial_failure_event(server) -> None:
     stdout, _ = server
