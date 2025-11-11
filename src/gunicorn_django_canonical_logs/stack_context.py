@@ -12,6 +12,11 @@ if TYPE_CHECKING:
 def _filter_stack_summary(
     stack_summary: traceback.StackSummary,
 ) -> tuple[list[traceback.FrameSummary], list[traceback.FrameSummary]]:
+    """Split stack frames into library and application frames
+
+    * Library frames are those that belong to third-party code
+    * Application frames are part of the application's source code
+    """
     library_paths = sysconfig.get_paths().values()
     library_frames, app_frames = [], []
     for frame_summary in stack_summary:
@@ -23,6 +28,12 @@ def _filter_stack_summary(
 
 
 def _format_frame_summary(frame_summary: traceback.FrameSummary | None) -> str | None:
+    """Get a frame summary formatted for log output
+
+    The format is "{path}:{line_number}:{function_name}" where path is the shortest importable path.
+
+    Example: "foo/bar.py:37:some_function"
+    """
     if not frame_summary:
         return None
     # use sys.path to find the shortest possible import (i.e. strip base project path)
@@ -37,7 +48,14 @@ def _format_frame_summary(frame_summary: traceback.FrameSummary | None) -> str |
     return f"{fname}:{frame_summary.lineno}:{frame_summary.name}"
 
 
-def get_stack_loc_context(stack_summary: traceback.StackSummary):
+def get_stack_loc_context(stack_summary: traceback.StackSummary) -> dict[str, str]:
+    """Get exception location context
+
+    Prefers app context if possible; if multiple app stack frames are present it will ignore library frames in between
+
+    * `loc` - the last location where the error could have been handled (the root)
+    * `cause_loc` - the location closest the the error being raised (the cause)
+    """
     library_frames, app_frames = _filter_stack_summary(stack_summary)
 
     if not app_frames:
