@@ -13,6 +13,7 @@ from whitenoise import WhiteNoise
 
 from gunicorn_django_canonical_logs import Context, register_instrumenter
 from gunicorn_django_canonical_logs.instrumenters.protocol import InstrumenterProtocol
+from gunicorn_django_canonical_logs.partial_failure import on_error
 
 
 @register_instrumenter
@@ -54,6 +55,16 @@ def template_callable_exception(request):
 
 def template_ok(request):
     return render(request, "ok.html", {"msg": "template OK!"})
+
+
+def partial_failure(_):
+    @on_error(return_value="partial failure")
+    def will_throw():
+        func_that_throws()
+
+    msg = will_throw()
+
+    return HttpResponse(msg)
 
 
 class TemplateOKClassView(TemplateView):
@@ -118,6 +129,7 @@ urlpatterns = [
     path("sleep/", sleep),
     path("rude_sleep/", rude_sleep),
     path("db_queries/", db_queries),
+    path("partial_failure/", partial_failure),
 ]
 
 application = get_wsgi_application()

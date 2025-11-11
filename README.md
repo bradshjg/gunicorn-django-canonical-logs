@@ -63,6 +63,14 @@ logger_class = Logger
 > [!TIP]
 > Set `GUNICORN_PRESERVE_EXISTING_LOGGER=1` in the environment to preserve existing gunicorn access logs in addition to canonical logs
 
+### Partial failure
+
+This library also includes an `@on_error(return_value=...)` decorator that will emit a `partial_failure` event correlated to the request
+log via `req_id` with exception context. See `tests/server/app.py:partial_failure` for an example.
+
+The motivation is that some failure is expected and we'd prefer to return a degraded experience in some cases. In the event that's
+necessary, correlated logs provide the opportunity to monitor the frequency and type of errors observed.
+
 ## Overview
 
 The goal is to enhance obersvability by providing reasonable defaults and extensibility to answer two questions:
@@ -186,6 +194,34 @@ req_user_agent="curl/7.88.1"
 resp_time="0.8"
 timeout_loc="gunicorn_django_canonical_logs/instrumenters/request.py:25:context_middleware"
 timeout_cause_loc="app.py:103:simulate_blocking_and_ignoring_signals"
+g_w_count="1"
+g_w_active="0"
+g_backlog="0"
+```
+
+</details>
+
+### Partial failure events
+
+<details><summary>partial failure</summary>
+
+```
+event_type="partial_failure"
+req_id="944e3dc1-14df-4dcd-aafe-00deea240c8b"
+exc_type="MyError"
+exc_msg="Oh noes!"
+exc_loc="app.py:63:will_throw"
+exc_cause_loc="app.py:31:func_that_throws"
+
+event_type="request"
+req_id="944e3dc1-14df-4dcd-aafe-00deea240c8b"
+req_method="GET" req_path="/partial_failure/"
+req_referrer="-"
+req_user_agent="curl/7.88.1"
+resp_view="app.partial_failure"
+resp_time="0.006"
+resp_cpu_time="0.005"
+resp_status="200"
 g_w_count="1"
 g_w_active="0"
 g_backlog="0"

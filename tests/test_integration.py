@@ -14,7 +14,7 @@ import requests
 from server.gunicorn_config import workers
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Sequence
 
 
 @pytest.fixture(scope="module")
@@ -74,7 +74,7 @@ def read_log_lines(fp: IO[str]) -> list[str]:
     return fp.readlines()
 
 
-def get_parsed_canonical_logs(fp: IO[str], event_type="request") -> list[dict[str, str]]:
+def get_parsed_canonical_logs(fp: IO[str], event_types: Sequence[str] = ("request",)) -> list[dict[str, str]]:
     """Returns a list of dictionaries of the key-value pairs in canonical logs of the given event type.
 
     NB this is unable to parse lines a "real" logfmt parser would, e.g. it breaks on values with "=" in them.
@@ -94,7 +94,7 @@ def get_parsed_canonical_logs(fp: IO[str], event_type="request") -> list[dict[st
     ]
     """
     lines = read_log_lines(fp)
-    canonical_lines = [line for line in lines if line.startswith(f'event_type="{event_type}"')]
+    canonical_lines = [line for line in lines if any(line.startswith(f'event_type="{type_}"') for type_ in event_types)]
     # HACK HACK HACK the idea behind this "parser" is to let shlex handle preserving spaces within quoted logfmt values
     parsed_lines = []
     for line in canonical_lines:
@@ -115,6 +115,7 @@ def test_context_reset_between_requests(server) -> None:
     logs = get_parsed_canonical_logs(stdout)
     assert len(logs) == 1
     assert logs[0][custom_event_key] == "1"
+    first_request_id = logs[0]["req_id"]
 
     # context reset between requests
     clear_output(stdout)
@@ -123,6 +124,9 @@ def test_context_reset_between_requests(server) -> None:
     logs = get_parsed_canonical_logs(stdout)
     assert len(logs) == 1
     assert custom_event_key not in logs[0]
+    second_request_id = logs[0]["req_id"]
+
+    assert first_request_id != second_request_id
 
 
 def test_access_event(server) -> None:
@@ -231,7 +235,7 @@ def test_timeout_event(server) -> None:
 
     requests.get("http://localhost:8080/sleep/?duration=10")
 
-    logs = get_parsed_canonical_logs(stdout, event_type="timeout")
+    logs = get_parsed_canonical_logs(stdout, event_types=("timeout",))
     assert len(logs) == 1
     assert re.search(r"app\.py:\d+:sleep", logs[0]["timeout_loc"])
     assert re.search(r"app\.py:\d+:simulate_blocking", logs[0]["timeout_cause_loc"])
@@ -244,7 +248,7 @@ def test_sigkill_timeout_event(server) -> None:
     with pytest.raises(requests.ConnectionError):  # worker SIGKILL will abort connection
         requests.get("http://localhost:8080/rude_sleep/?duration=10")
 
-    logs = get_parsed_canonical_logs(stdout, event_type="timeout")
+    logs = get_parsed_canonical_logs(stdout, event_types=("timeout",))
     assert len(logs) == 1
     assert re.search(r"app\.py:\d+:rude_sleep", logs[0]["timeout_loc"])
     assert re.search(r"app\.py:\d+:simulate_blocking_and_ignoring_signals", logs[0]["timeout_cause_loc"])
@@ -283,3 +287,26 @@ def test_preserve_existing_request_logger(server, server_with_existing_logger_pr
     assert len(server_with_existing_logger_preserved_log_lines) == 2
     assert server_with_existing_logger_preserved_log_lines[0].startswith("127.0.0.1")
     assert server_with_existing_logger_preserved_log_lines[1].startswith('event_type="request"')
+
+
+def test_partial_failure_event(server) -> None:
+    stdout, _ = server
+    clear_output(stdout)
+
+    resp = requests.get("http://localhost:8080/partial_failure/")
+
+    assert resp.status_code == 200
+    assert resp.content == b"partial failure"
+
+    logs = get_parsed_canonical_logs(stdout, event_types=("request", "partial_failure"))
+    assert len(logs) == 2
+
+    assert logs[0]["req_id"] == logs[1]["req_id"]
+
+    assert logs[0]["event_type"] == "partial_failure"
+    assert logs[0]["exc_type"] == "MyError"
+    assert logs[0]["exc_msg"] == "Oh noes!"
+    assert logs[0]["exc_loc"].endswith("will_throw")
+    assert logs[0]["exc_cause_loc"].endswith("func_that_throws")
+
+    assert logs[1]["event_type"] == "request"
