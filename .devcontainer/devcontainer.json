@@ -7,7 +7,7 @@
                 "ms-python.python"
             ],
             "settings": {
-                "python.defaultInterpreterPath": "/workspaces/gunicorn-django-wide-events/.venv/dev/bin/python"
+                "python.defaultInterpreterPath": "/workspaces/gunicorn-django-canonical-logs/.venv/dev/bin/python"
             }
         }
     },

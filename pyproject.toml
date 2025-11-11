@@ -80,6 +80,15 @@ features = [
   "test",
 ]
 
+[tool.hatch.envs.server]
+dev-mode = false
+features = [
+  "test",
+]
+
+[tool.hatch.envs.server.scripts]
+start = "gunicorn --bind 127.0.0.1:8888 -c gunicorn_config.py app"
+
 [tool.pytest.ini_options]
 django_find_project = false
 DJANGO_SETTINGS_MODULE = "settings"

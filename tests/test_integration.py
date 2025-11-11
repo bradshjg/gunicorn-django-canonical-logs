@@ -1,6 +1,7 @@
 # noqa: INP001 intentionally not a package, part of pytest tests
 from __future__ import annotations
 
+import os
 import re
 import shlex
 import subprocess
@@ -23,21 +24,33 @@ def server() -> Generator[tuple[IO[str], IO[str]], None, None]:
 
 
 @pytest.fixture(scope="module")
-def server_with_gunicorn() -> Generator[tuple[IO[str], IO[str]], None, None]:
-    """Gunicorn process running Djagno with Whitenoise WSGI middleware on localhost:8081"""
+def server_with_whitenoise() -> Generator[tuple[IO[str], IO[str]], None, None]:
+    """Gunicorn process running Django with Whitenoise WSGI middleware on localhost:8081"""
     yield from _run_server(bind="127.0.0.1:8081", app="tests.server.app:whitenoise_app")
 
 
-def _run_server(bind: str, app: str):
+@pytest.fixture(scope="module")
+def server_with_existing_logger_preserved() -> Generator[tuple[IO[str], IO[str]], None, None]:
+    """Gunicorn process running with log preservation enabled on localhost:8082"""
+    yield from _run_server(
+        bind="127.0.0.1:8082", app="tests.server.app", env={"GUNICORN_PRESERVE_EXISTING_LOGGER": "1"}
+    )
+
+
+def _run_server(bind: str, app: str, env: dict[str, str] | None = None):
     fp_stdout = tempfile.TemporaryFile(mode="w+")
     fp_stderr = tempfile.TemporaryFile(mode="w+")
 
+    process_env = os.environ.copy()
+    if env:
+        process_env.update(env)
     s_proc = subprocess.Popen(
         ["gunicorn", "--bind", bind, "-c", "./tests/server/gunicorn_config.py", app],
         stdout=fp_stdout,
         stderr=fp_stderr,
         bufsize=1,  # line buffered
         text=True,
+        env=process_env,
     )
 
     time.sleep(5)  # HACK wait for server boot and saturation monitor to start emitting data
@@ -237,8 +250,8 @@ def test_sigkill_timeout_event(server) -> None:
     assert re.search(r"app\.py:\d+:simulate_blocking_and_ignoring_signals", logs[0]["timeout_cause_loc"])
 
 
-def test_successful_wsgi_middleware_static_file(server_with_gunicorn):
-    stdout, _ = server_with_gunicorn
+def test_successful_wsgi_middleware_static_file(server_with_whitenoise):
+    stdout, _ = server_with_whitenoise
     clear_output(stdout)
 
     requests.get("http://localhost:8081/static/foo.txt", headers={"Referrer": "http://localhost:8080"})
@@ -249,3 +262,24 @@ def test_successful_wsgi_middleware_static_file(server_with_gunicorn):
     assert logs[0]["req_referrer"] == "http://localhost:8080"
     assert logs[0]["req_user_agent"].startswith("python-requests")
     assert logs[0]["resp_status"] == "200"
+
+
+def test_preserve_existing_request_logger(server, server_with_existing_logger_preserved):
+    server_stdout, _ = server
+    clear_output(server_stdout)
+
+    server_with_existing_logger_preserved_stdout, _ = server_with_existing_logger_preserved
+    clear_output(server_with_existing_logger_preserved_stdout)
+
+    requests.get("http://localhost:8080/ok/")  # existing logger disabled
+    requests.get("http://localhost:8082/ok/")  # existing logger preserved
+
+    server_log_lines = read_log_lines(server_stdout)
+    server_with_existing_logger_preserved_log_lines = read_log_lines(server_with_existing_logger_preserved_stdout)
+
+    assert len(server_log_lines) == 1
+    assert server_log_lines[0].startswith('event_type="request"')
+
+    assert len(server_with_existing_logger_preserved_log_lines) == 2
+    assert server_with_existing_logger_preserved_log_lines[0].startswith("127.0.0.1")
+    assert server_with_existing_logger_preserved_log_lines[1].startswith('event_type="request"')

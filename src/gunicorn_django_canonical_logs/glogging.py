@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING, Any
 
 from gunicorn import glogging
@@ -16,8 +17,14 @@ if TYPE_CHECKING:
 class Logger(glogging.Logger):
     EVENT_TYPE = "type"
     EVENT_NAMESPACE = "event"
+    PRESERVE_EXISTING_LOGGER = os.environ.get("GUNICORN_PRESERVE_EXISTING_LOGGER", False) == "1"
 
-    def access(self, resp: Response, req: Request, environ: dict[str, Any], *_args, **_kwargs):
+    def access(self, resp: Request, req: Request, environ: dict[str, Any], *_args, **_kwargs):
+        # See https://github.com/bradshjg/gunicorn-django-canonical-logs/issues/7
+        # The goal is to allow a smooth transition when existing logs are used in downstream systems
+        if self.PRESERVE_EXISTING_LOGGER:
+            super().access(resp, req, environ, *_args, **_kwargs)
+
         # gunicorn calls this on abort, but the data is weird (e.g. request timing is abort handler timing?); silence it
         if req.timed_out:
             return
