@@ -85,13 +85,109 @@ And then, from another shell:
 * `curl http://localhost:8080/db_queries/`
 * `curl http://localhost:8080/rude_sleep/?duration=10`
 
-### Request log
+### Request events
 
-`event_type=request req_method=GET req_path=/db_queries/ req_referrer= req_user_agent=curl/7.88.1 req_view=app.db_queries resp_time=0.026 resp_cpu_time=0.011 resp_status=200 db_queries=3 db_time=0.005 db_dup_queries=2 db_dup_time=0.001 g_w_count=1 g_w_active=0 g_backlog=0 app_key=val`
+<details><summary>200 response from Django with DB queries</summary>
 
-### Timeout log
+```
+event_type="request"
+req_method="GET"
+req_path="/db_queries/"
+req_referrer="localhost:8080"
+req_user_agent="curl/7.88.1"
+resp_view="app.db_queries"
+resp_time="0.016"
+resp_cpu_time="0.006"
+resp_status="200"
+db_queries="3"
+db_time="0.007"
+db_dup_queries="2"
+db_dup_time="0.003"
+g_w_count="1"
+g_w_active="0"
+g_backlog="0"
+```
 
-`event_type=timeout req_method=GET req_path=/rude_sleep/ req_referrer= req_user_agent=curl/7.88.1 resp_time=0.8 timeout_loc=app.py:73:rude_sleep timeout_cause_loc=app.py:93:simulate_blocking_and_ignoring_signals db_queries=0 db_time=0.000 db_dup_queries=0 db_dup_time=0.000 g_w_count=1 g_w_active=0 g_backlog=0 app_key=val`
+</details>
+
+<details><summary>404 response from Django</summary>
+
+```
+event_type="request"
+req_method="GET"
+req_path="/does-no-exist/"
+req_referrer="-"
+req_user_agent="curl/7.88.1"
+resp_view="-"
+resp_time="0.000"
+resp_cpu_time="0.000"
+resp_status="404"
+g_w_count="1"
+g_w_active="0"
+g_backlog="0"
+```
+
+</details>
+
+<details><summary>500 response from Django</summary>
+
+```
+event_type="request"
+req_method="GET"
+req_path="/view_exception/"
+req_referrer="-"
+req_user_agent="curl/7.88.1"
+exc_type="MyError"
+exc_msg="Oh noes!"
+exc_loc="app.py:38:view_exception"
+exc_cause_loc="app.py:30:func_that_throws"
+resp_view="app.view_exception"
+resp_time="0.005"
+resp_cpu_time="0.003"
+resp_status="500"
+g_w_count="1"
+g_w_active="0"
+g_backlog="0"
+app_key="val"
+```
+
+</details>
+
+<details><summary>200 response from Whitenoise (static assets)</summary>
+
+```
+event_type="request"
+req_method="GET"
+req_path="/static/foo.txt"
+req_referrer="localhost:8080"
+req_user_agent="curl/7.88.1"
+resp_status="200"
+g_w_count="1"
+g_w_active="0"
+g_backlog="0"
+```
+
+</details>
+
+### Timeout events
+
+<details><summary>timeout</summary>
+
+```
+event_type="timeout"
+req_method="GET"
+req_path="/rude_sleep/"
+req_referrer="localhost:8080"
+req_user_agent="curl/7.88.1"
+resp_time="0.8"
+timeout_loc="gunicorn_django_canonical_logs/instrumenters/request.py:25:context_middleware"
+timeout_cause_loc="app.py:103:simulate_blocking_and_ignoring_signals"
+g_w_count="1"
+g_w_active="0"
+g_backlog="0"
+```
+
+</details>
 
 ### Default instrumenters
 
@@ -183,7 +279,7 @@ class MyInstrumenter:
     def setup(self):
         pass  # called once after forking a Gunicorn worker
 
-    def call(self, *, req, resp, environ):
+    def call(self, request, response, environ):
         pass  # called every time an event is emitted
 ```
 
