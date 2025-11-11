@@ -74,7 +74,9 @@ class DatabaseInstrumenter(InstrumenterProtocol):
         BaseDatabaseWrapper.make_cursor = self._orig_make_cursor
 
     def call(self, _req, _resp, _environ):
-        Context.update(namespace=self.NAMESPACE, context=QueryCollector.get_data())
+        query_data = QueryCollector.get_data()
+        if query_data.get("queries", 0) > 0:
+            Context.update(namespace=self.NAMESPACE, context=query_data)
         QueryCollector.reset()
 
     @property
