@@ -19,7 +19,7 @@ def on_timeout(timeout: int, worker: Worker, req: Request):
     Context.update(namespace="timeout", context=get_stack_loc_context(stack_summary))
     req.timed_out = True
 
-    worker.log.timeout()
+    worker.log.timeout(req)
 
 
 @register_hook

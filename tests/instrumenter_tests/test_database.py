@@ -27,7 +27,7 @@ def test_queries(instrumenter, live_server):
 
     db_namespace = "db"
 
-    instrumenter.call()
+    instrumenter.call(None, None, None)
 
     assert Context.get("queries", namespace=db_namespace) == 3
     assert float(Context.get("time", namespace=db_namespace)) >= 0
@@ -35,7 +35,7 @@ def test_queries(instrumenter, live_server):
     assert float(Context.get("dup_time", namespace=db_namespace)) >= 0
 
 
-def test_reset(instrumenter, live_server):
+def test_query_collector_reset_on_call(instrumenter, live_server):
     Context.reset()
     QueryCollector.reset()
     url = live_server + "/db_queries/"
@@ -44,19 +44,31 @@ def test_reset(instrumenter, live_server):
 
     db_namespace = "db"
 
-    instrumenter.call()
+    instrumenter.call(None, None, None)
 
     assert Context.get("queries", namespace=db_namespace) > 0
     assert float(Context.get("time", namespace=db_namespace)) >= 0
     assert Context.get("dup_queries", namespace=db_namespace) > 0
     assert float(Context.get("dup_time", namespace=db_namespace)) >= 0
 
-    instrumenter.call()
+    Context.reset()
+    instrumenter.call(None, None, None)
 
-    assert Context.get("queries", namespace=db_namespace) == 0
-    assert float(Context.get("time", namespace=db_namespace)) == 0
-    assert Context.get("dup_queries", namespace=db_namespace) == 0
-    assert float(Context.get("dup_time", namespace=db_namespace)) == 0
+    assert db_namespace not in dict(Context.raw_items())
+
+
+def test_does_not_set_context_if_no_queries(instrumenter, live_server):
+    Context.reset()
+    QueryCollector.reset()
+    url = live_server + "/ok/"
+    resp = requests.get(url)
+    assert resp.status_code == 200
+
+    db_namespace = "db"
+
+    instrumenter.call(None, None, None)
+
+    assert db_namespace not in dict(Context.raw_items())
 
 
 def test_instrumenter_query_counts():

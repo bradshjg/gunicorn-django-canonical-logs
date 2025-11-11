@@ -9,7 +9,7 @@ from django.db.backends.base.base import BaseDatabaseWrapper
 from django.db.backends.utils import CursorWrapper
 
 from gunicorn_django_canonical_logs.event_context import Context
-from gunicorn_django_canonical_logs.instrumenters.base import BaseInstrumenter
+from gunicorn_django_canonical_logs.instrumenters.protocol import InstrumenterProtocol
 from gunicorn_django_canonical_logs.instrumenters.registry import register_instrumenter
 
 
@@ -61,7 +61,7 @@ class InstrumenterCursorWrapper(CursorWrapper):
 
 
 @register_instrumenter
-class DatabaseInstrumenter(BaseInstrumenter):
+class DatabaseInstrumenter(InstrumenterProtocol):
     NAMESPACE = "db"
 
     def __init__(self):
@@ -73,8 +73,10 @@ class DatabaseInstrumenter(BaseInstrumenter):
     def teardown(self):
         BaseDatabaseWrapper.make_cursor = self._orig_make_cursor
 
-    def call(self):
-        Context.update(namespace=self.NAMESPACE, context=QueryCollector.get_data())
+    def call(self, _req, _resp, _environ):
+        query_data = QueryCollector.get_data()
+        if query_data.get("queries", 0) > 0:
+            Context.update(namespace=self.NAMESPACE, context=query_data)
         QueryCollector.reset()
 
     @property

@@ -3,7 +3,7 @@ import time
 from django.conf import settings
 
 from gunicorn_django_canonical_logs.event_context import Context
-from gunicorn_django_canonical_logs.instrumenters.base import BaseInstrumenter
+from gunicorn_django_canonical_logs.instrumenters.protocol import InstrumenterProtocol
 from gunicorn_django_canonical_logs.instrumenters.registry import register_instrumenter
 
 
@@ -38,7 +38,7 @@ def _django_middleware(get_response):
 
 
 @register_instrumenter
-class RequestInstrumenter(BaseInstrumenter):
+class RequestInstrumenter(InstrumenterProtocol):
     def __init__(self) -> None:
         self.middleware_setting = "MIDDLEWARE"
         self.request_middleware_string_path = f"{self.__module__}.{_django_middleware.__qualname__}"
@@ -50,6 +50,24 @@ class RequestInstrumenter(BaseInstrumenter):
         settings_middleware.insert(0, self.request_middleware_string_path)
 
         setattr(settings, self.middleware_setting, settings_middleware)
+
+    def call(self, req, resp, environ):
+        if Context.get("method", namespace="req"):
+            return
+
+        # if we got here, Django never saw the request; update the context with what gunicorn knows
+        request_context = {
+            "method": req.method,
+            "path": req.path,
+            "referrer": environ.get("HTTP_REFERRER"),
+            "user_agent": environ.get("HTTP_USER_AGENT"),
+        }
+        Context.update(namespace="req", context=request_context)
+
+        response_context = {
+            "status": resp.status_code,
+        }
+        Context.update(namespace="resp", context=response_context)
 
     def teardown(self) -> None:
         settings_middleware: list = getattr(settings, self.middleware_setting)

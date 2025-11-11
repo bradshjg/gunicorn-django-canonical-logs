@@ -17,7 +17,7 @@ def instrumenter() -> Generator[SaturationInstrumenter, None, None]:
 
 
 def test_adds_context_on_call(instrumenter):
-    instrumenter.call()
+    instrumenter.call(None, None, None)
 
     gunicorn_namespace = "g"
     assert Context.get("w_count", namespace=gunicorn_namespace) == 0

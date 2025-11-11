@@ -5,12 +5,17 @@ from functools import wraps
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from gunicorn_django_canonical_logs.instrumenters.base import BaseInstrumenter
+    from collections.abc import ValuesView
+
+    from gunicorn_django_canonical_logs.instrumenters.protocol import InstrumenterProtocol
 
 
 class InstrumenterRegistry(UserDict):
-    def register(self, *, instrumenter: type[BaseInstrumenter]) -> None:
+    def register(self, *, instrumenter: type[InstrumenterProtocol]) -> None:
         self.data[instrumenter.__name__] = instrumenter()
+
+    def values(self) -> ValuesView[InstrumenterProtocol]:
+        return self.data.values()
 
 
 instrumenter_registry = InstrumenterRegistry()

@@ -7,7 +7,7 @@ from django.core.handlers import exception
 from django.template.base import Node
 
 from gunicorn_django_canonical_logs.event_context import Context
-from gunicorn_django_canonical_logs.instrumenters.base import BaseInstrumenter
+from gunicorn_django_canonical_logs.instrumenters.protocol import InstrumenterProtocol
 from gunicorn_django_canonical_logs.instrumenters.registry import register_instrumenter
 from gunicorn_django_canonical_logs.stack_context import get_stack_loc_context
 
@@ -24,7 +24,7 @@ _orig_handle_uncaught_exception = exception.handle_uncaught_exception
 def _patched_handle_uncaught_exception(request, resolver, exc_info: SysExcInfo):
     exc_type, exc_value, tb = exc_info
     if exc_type and exc_value and tb:
-        exc_context = {
+        exc_context: dict[str, str | None] = {
             "type": exc_type.__name__,
             "msg": str(exc_value),
         }
@@ -50,7 +50,7 @@ def _patched_render_annotated(self, context):
 
 
 @register_instrumenter
-class ExceptionInstrumenter(BaseInstrumenter):
+class ExceptionInstrumenter(InstrumenterProtocol):
     def setup(self):
         exception.handle_uncaught_exception = _patched_handle_uncaught_exception
         Node.render_annotated = _patched_render_annotated

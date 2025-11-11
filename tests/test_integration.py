@@ -18,11 +18,22 @@ if TYPE_CHECKING:
 
 @pytest.fixture(scope="module")
 def server() -> Generator[tuple[IO[str], IO[str]], None, None]:
+    """Gunicorn process running Django on localhost:8080"""
+    yield from _run_server(bind="127.0.0.1:8080", app="tests.server.app")
+
+
+@pytest.fixture(scope="module")
+def server_with_gunicorn() -> Generator[tuple[IO[str], IO[str]], None, None]:
+    """Gunicorn process running Djagno with Whitenoise WSGI middleware on localhost:8081"""
+    yield from _run_server(bind="127.0.0.1:8081", app="tests.server.app:whitenoise_app")
+
+
+def _run_server(bind: str, app: str):
     fp_stdout = tempfile.TemporaryFile(mode="w+")
     fp_stderr = tempfile.TemporaryFile(mode="w+")
 
     s_proc = subprocess.Popen(
-        ["gunicorn", "-c", "./tests/server/gunicorn_config.py", "tests.server.app"],
+        ["gunicorn", "--bind", bind, "-c", "./tests/server/gunicorn_config.py", app],
         stdout=fp_stdout,
         stderr=fp_stderr,
         bufsize=1,  # line buffered
@@ -224,3 +235,17 @@ def test_sigkill_timeout_event(server) -> None:
     assert len(logs) == 1
     assert re.search(r"app\.py:\d+:rude_sleep", logs[0]["timeout_loc"])
     assert re.search(r"app\.py:\d+:simulate_blocking_and_ignoring_signals", logs[0]["timeout_cause_loc"])
+
+
+def test_successful_wsgi_middleware_static_file(server_with_gunicorn):
+    stdout, _ = server_with_gunicorn
+    clear_output(stdout)
+
+    requests.get("http://localhost:8081/static/foo.txt", headers={"Referrer": "http://localhost:8080"})
+    logs = get_parsed_canonical_logs(stdout)
+    assert len(logs) == 1
+    assert logs[0]["req_method"] == "GET"
+    assert logs[0]["req_path"] == "/static/foo.txt"
+    assert logs[0]["req_referrer"] == "http://localhost:8080"
+    assert logs[0]["req_user_agent"].startswith("python-requests")
+    assert logs[0]["resp_status"] == "200"
