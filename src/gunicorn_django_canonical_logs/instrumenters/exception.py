@@ -24,7 +24,7 @@ _orig_handle_uncaught_exception = exception.handle_uncaught_exception
 def _patched_handle_uncaught_exception(request, resolver, exc_info: SysExcInfo):
     exc_type, exc_value, tb = exc_info
     if exc_type and exc_value and tb:
-        exc_context = {
+        exc_context: dict[str, str | None] = {
             "type": exc_type.__name__,
             "msg": str(exc_value),
         }

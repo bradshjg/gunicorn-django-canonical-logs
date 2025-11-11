@@ -48,7 +48,7 @@ def _format_frame_summary(frame_summary: traceback.FrameSummary | None) -> str |
     return f"{fname}:{frame_summary.lineno}:{frame_summary.name}"
 
 
-def get_stack_loc_context(stack_summary: traceback.StackSummary) -> dict[str, str]:
+def get_stack_loc_context(stack_summary: traceback.StackSummary) -> dict[str, str | None]:
     """Get exception location context
 
     Prefers app context if possible; if multiple app stack frames are present it will ignore library frames in between
