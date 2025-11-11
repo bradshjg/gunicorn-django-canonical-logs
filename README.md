@@ -302,7 +302,7 @@ from anywhere in your application, use
 ```python
 from gunicorn_django_canonical_logs import Context
 
-Context.time("custom"):
+with Context.time("custom"):
     do_thing_that_takes_time()
 ```
 
