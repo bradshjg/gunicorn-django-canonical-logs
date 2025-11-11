@@ -28,13 +28,16 @@ def server_with_whitenoise() -> Generator[tuple[IO[str], IO[str]], None, None]:
     """Gunicorn process running Django with Whitenoise WSGI middleware on localhost:8081"""
     yield from _run_server(bind="127.0.0.1:8081", app="tests.server.app:whitenoise_app")
 
+
 @pytest.fixture(scope="module")
 def server_with_existing_logger_preserved() -> Generator[tuple[IO[str], IO[str]], None, None]:
     """Gunicorn process running with log preservation enabled on localhost:8082"""
-    yield from _run_server(bind="127.0.0.1:8082", app="tests.server.app", env={"GUNICORN_PRESERVE_EXISTING_LOGGER": "1"})
+    yield from _run_server(
+        bind="127.0.0.1:8082", app="tests.server.app", env={"GUNICORN_PRESERVE_EXISTING_LOGGER": "1"}
+    )
 
 
-def _run_server(bind: str, app: str, env: dict[str, str] | None=None):
+def _run_server(bind: str, app: str, env: dict[str, str] | None = None):
     fp_stdout = tempfile.TemporaryFile(mode="w+")
     fp_stderr = tempfile.TemporaryFile(mode="w+")
 
