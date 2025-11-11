@@ -66,7 +66,10 @@ logger_class = Logger
 ### Partial failure
 
 This library also includes an `@on_error(return_value=...)` decorator that will emit a `partial_failure` event correlated to the request
-log via `request_id` with exception context. See `tests/server/app.py` for an example.
+log via `req_id` with exception context. See `tests/server/app.py:partial_failure` for an example.
+
+The motivation is that some failure is expected and we'd prefer to return a degraded experience in some cases. In the event that's
+necessary, correlated logs provide the opportunity to monitor the frequency and type of errors observed.
 
 ## Overview
 
