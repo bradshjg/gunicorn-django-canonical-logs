@@ -241,6 +241,11 @@ def test_successful_wsgi_middleware_static_file(server_with_gunicorn):
     stdout, _ = server_with_gunicorn
     clear_output(stdout)
 
-    requests.get("http://localhost:8081/static/foo.txt")
+    requests.get("http://localhost:8081/static/foo.txt", headers={"Referrer": "http://localhost:8080"})
     logs = get_parsed_canonical_logs(stdout)
-    assert len(logs) == 0
+    assert len(logs) == 1
+    assert logs[0]["req_method"] == "GET"
+    assert logs[0]["req_path"] == "/static/foo.txt"
+    assert logs[0]["req_referrer"] == "http://localhost:8080"
+    assert logs[0]["req_user_agent"].startswith("python-requests")
+    assert logs[0]["resp_status"] == "200"

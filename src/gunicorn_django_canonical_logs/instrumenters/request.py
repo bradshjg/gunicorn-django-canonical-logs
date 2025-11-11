@@ -51,6 +51,24 @@ class RequestInstrumenter(InstrumenterProtocol):
 
         setattr(settings, self.middleware_setting, settings_middleware)
 
+    def call(self, req, resp, environ):
+        if Context.get("method", namespace="req"):
+            return
+
+        # if we got here, Django never saw the request; update the context with what gunicorn knows
+        request_context = {
+            "method": req.method,
+            "path": req.path,
+            "referrer": environ.get("HTTP_REFERRER"),
+            "user_agent": environ.get("HTTP_USER_AGENT"),
+        }
+        Context.update(namespace="req", context=request_context)
+
+        response_context = {
+            "status": resp.status_code,
+        }
+        Context.update(namespace="resp", context=response_context)
+
     def teardown(self) -> None:
         settings_middleware: list = getattr(settings, self.middleware_setting)
         settings_middleware.remove(self.request_middleware_string_path)
