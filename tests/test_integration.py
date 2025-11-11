@@ -115,6 +115,7 @@ def test_context_reset_between_requests(server) -> None:
     logs = get_parsed_canonical_logs(stdout)
     assert len(logs) == 1
     assert logs[0][custom_event_key] == "1"
+    first_request_id = logs[0]["req_id"]
 
     # context reset between requests
     clear_output(stdout)
@@ -123,6 +124,9 @@ def test_context_reset_between_requests(server) -> None:
     logs = get_parsed_canonical_logs(stdout)
     assert len(logs) == 1
     assert custom_event_key not in logs[0]
+    second_request_id = logs[0]["req_id"]
+
+    assert first_request_id != second_request_id
 
 
 def test_access_event(server) -> None:
