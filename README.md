@@ -57,7 +57,11 @@ accesslog = "-"
 logger_class = Logger
 ```
 
-> NB Only `sync` Gunicorn worker types are supported
+> [!IMPORTANT]
+> Only `sync` Gunicorn worker types are supported
+
+> [!TIP]
+> Set `GUNICORN_PRESERVE_EXISTING_LOGGER=1` in the environment to preserve existing gunicorn access logs in addition to canonical logs
 
 ## Overview
 
@@ -283,7 +287,8 @@ class MyInstrumenter:
         pass  # called every time an event is emitted
 ```
 
-> NB The application must import the instrumenter for it to register itself.
+> [!IMPORTANT]
+> The application must import the instrumenter for it to register itself.
 
 ## License
 
